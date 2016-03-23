@@ -2,7 +2,7 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
   const int BUFF_LEN = 80;
   char buff[BUFF_LEN];
 //  DateTime now;
-  int command = NULL;
+  int command = GLIDE;
   // PROCESS SERIAL INPUT FROM USER (IF AVAILABLE)
   if(Serial.available()) // if command was read
   {
