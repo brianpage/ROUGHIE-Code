@@ -53,7 +53,7 @@ void setup() {
   // output, even if you don't use it:
   pinMode(10, OUTPUT);
   // see if the card is present and can be initialized:
-  if (!SD.begin(10)) {
+  if (!SD.begin(10,11,12,13)){;//10)) {
     Serial.println(F("Card failed, or not present"));
   }
   else {
@@ -95,6 +95,8 @@ void loop() {
   if (command == START) {//Start a glide cycle with timing based controller
     completedGlides = 0;
     t0 = millis();
+    rollI = 0.0;
+    rotOutput = 0.0;
     currentState = DOWNGLIDE;
     command = GLIDE;
   }
@@ -105,14 +107,18 @@ void loop() {
     actuate(param.linMid,param.rotMid,param.tankMid,POSITION);
     if(checkPump(param.tankMid) && checkMass(param.linMid)){//If both pump and mass are done, STOP
       command = STOP;
+      Serial.println(F("Glider RESET done!"));
     }
   }
   if (command == GLIDE) {//Runs whenever while gliding
     //First do high level control
-
+    uint32_t m = millis();  // UPDATE m, THE # OF MILLISECONDS SINCE STARTING
+    if(SDgo) {//If we are supposed to record, log data
+      logData(m);
+    }
     completedGlides = completedGlides + sawtooth(lin,rot,pump,mode);//sawtooth function does timing based high level control and returns a 1 if it completed a glide cycle, otherwise zero.
     actuate(lin,rot,pump,mode);//Low level control of motors and such.
-    if(completedGlides > param.number_of_glides) {//Once it completes its command go to RESET
+    if(completedGlides >= param.number_of_glides) {//Once it completes its command go to RESET
       Serial.println(F("Done!"));
       command = RESET;
     }

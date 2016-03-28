@@ -376,6 +376,9 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
     }
     
     else if(strcmp(arg[0], "imucal") == 0) {
+      imu.rollOffset = 0;
+      imu.pitchOffset = 0;
+      updateIMU();
       imu.rollOffset = -imu.roll;
       imu.pitchOffset = -imu.pitch;
       Serial.println(F("IMU Calibrated"));

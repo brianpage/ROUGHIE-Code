@@ -10,7 +10,7 @@ static float error_prev, error_act;
 int linPIDRate(int lin) {//Linear PID controller
   float P,D;
   error_prev = error_act;
-  error_act = lin - imu.pitch;
+  error_act = -(lin - imu.pitch);
   P = error_act;
   linI = linI + error_act;
 

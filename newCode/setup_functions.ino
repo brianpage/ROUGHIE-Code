@@ -112,7 +112,7 @@ void createSDfile(char* name_of_file) {//Create the SD file
       Serial.println(filename);
   
       // connect to RTC
-      Wire.begin();  
+      //Wire.begin();  
       //if (!rtc.begin()) {
       //  logfile.println(F("RTC failed"));
      // }

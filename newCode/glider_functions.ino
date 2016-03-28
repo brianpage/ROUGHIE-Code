@@ -28,6 +28,11 @@ bool checkMass(int mass) {//boolean check to see if the mass is at the target
   }
 }
 
+float mapfloat(float x, float in_min, float in_max, float out_min, float out_max)
+{
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
 void turnOff() {// turn off pump and motor
   digitalWrite(motAPWM, 0);//Turn off linear motor
   digitalWrite(motStdby, LOW);//Turn off motor controller

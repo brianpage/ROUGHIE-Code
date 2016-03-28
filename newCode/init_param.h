@@ -109,8 +109,8 @@ const int tankfrontlimit = 400; // FRONT LIMIT FOR BALLAST TANK
 const int rotmid = 0;                 // MIDDLE POSITION FOR ROTARY MASS
 const int rotlowlimit = rotmid - 44;  // LOW LIMIT FOR ROTARY MASS
 const int rothighlimit = rotmid + 44; // HIGH LIMIT FOR ROTARY MASS
-const int rotPWMmin = 65;             // ROTARY LOW PWM LIMIT (FOUND VIA BENCHTEST)
-const int rotPWMmax = 170;            // ROTARY HIGH PWM LIMIT (FOUND VIA BENCHTEST)
+const float rotPWMmin = 65.0;             // ROTARY LOW PWM LIMIT (FOUND VIA BENCHTEST)
+const float rotPWMmax = 170.0;            // ROTARY HIGH PWM LIMIT (FOUND VIA BENCHTEST)
 
 
 // DEFAULT PARAMETER VALUES
@@ -211,4 +211,5 @@ const char help_63[] PROGMEM = "---------------------------------------";
 const char* const helpTable[] PROGMEM = {help_1,help_2,help_3,help_4,help_5,help_6,help_7,help_8,help_9,help_10,help_11,help_12,help_13,help_14,help_15,help_16,help_17,help_18,help_19,help_20,help_21,help_22,help_23,help_24,help_25,help_26,help_27,help_28,help_29,help_30,help_31,help_32,help_33,help_34,help_35,help_36,help_37,help_38,help_39,help_40,help_41,help_42,help_43,help_44,help_45,help_46,help_47,help_48,help_49,help_50,help_51,help_52,help_53,help_54,help_55,help_56,help_57,help_58,help_59,help_60,help_61,help_62,help_63};
 char buffer[80];
 
-int lin, rot, pump, mode;
+int lin, pump, mode;
+float rot,rotStorage;

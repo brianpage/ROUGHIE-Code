@@ -1,4 +1,4 @@
-int sawtooth(int &lin,int &rot,int &pump,int &linMode) {
+int sawtooth(int &lin,float &rot,int &pump,int &linMode) {
   //sawtooth calculates the required glide targets based on system parameters and timing
   
   int pumpDone;
@@ -25,6 +25,7 @@ int sawtooth(int &lin,int &rot,int &pump,int &linMode) {
     if(millis() - t0 > param.desTime) {//Once its been gliding for desTime go to the next state
       currentState = NEUTRAL;
       nextState = UPGLIDE;
+      rotStorage = rot;;
       t0 = millis();
       //delay(50);
       Serial.println(F("DOWN GLIDE DONE"));
@@ -34,10 +35,31 @@ int sawtooth(int &lin,int &rot,int &pump,int &linMode) {
 
   if(currentState == NEUTRAL) {
     pump = param.tankMid;//Send the pump to the center
+    if(nextState == UPGLIDE && linMode == PWM) {
+      lin = param.linNoseDownTarget;
+    }
+    if(nextState == DOWNGLIDE && linMode == PWM) {
+      lin = param.linNoseUpTarget;
+    }
+    rot = rotStorage;
+    //Roll Calculations
+//    if(circle || (dubin && (millis() - t0 < param.dubinTime))) {
+//      if(dubin){
+//        rot = param.rollover;
+//      } else {
+//        if(nextState = UPGLIDE) {
+//          rot = param.rollover;
+//        } else {
+//          rot = -param.rollover;
+//        }
+//      }
+//    } else {
+//      rot = 0.0;
+//    }
+    
     if(millis() - t0 > param.neutralTime) {//Once neutral time is complete go to the next state
       currentState = nextState;
       t0 = millis();
-      delay(50);
       Serial.println(F("Neutral Done"));
     }
   }
@@ -68,6 +90,7 @@ int sawtooth(int &lin,int &rot,int &pump,int &linMode) {
       currentState = NEUTRAL;
       nextState = DOWNGLIDE;
       glideCompleted = 1;
+      rotStorage = rot;
       t0 = millis();
       Serial.println(F("Glide Completed"));
     }

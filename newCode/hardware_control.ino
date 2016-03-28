@@ -61,7 +61,9 @@ void actuate(int lin, float rot, int tank, int mode) { //lin is either PWM or po
   }
 
   //Roll Control
-  rotServo.write(constrain(map(param.rotMid + rot,-45,45,rotPWMmin,rotPWMmax),rotPWMmin,rotPWMmax));//Roll the servo to 'rot' which is a roll angle +/- 45 from centerline
+  float rollOutput = constrain(mapfloat(param.rotMid + rot,-45.0,45.0,rotPWMmin,rotPWMmax),rotPWMmin,rotPWMmax);
+
+  rotServo.write(rollOutput);//Roll the servo to 'rot' which is a roll angle +/- 45 from centerline
   
   //Pump Control
   int currentTankPos = getFiltAnalog(tankLevel);
@@ -81,10 +83,8 @@ void actuate(int lin, float rot, int tank, int mode) { //lin is either PWM or po
   }
   if(currentTankPos > tank) {//Set pump direction
     digitalWrite(pumpDir, HIGH);
-    Serial.println(",HIGH");
   } else {
     digitalWrite(pumpDir, LOW);
-    Serial.println(",LOW");
   }
   digitalWrite(pumpOn, HIGH);
   return;
