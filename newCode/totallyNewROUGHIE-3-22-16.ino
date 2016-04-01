@@ -97,6 +97,10 @@ void loop() {
     t0 = millis();
     rollI = 0.0;
     rotOutput = 0.0;
+    lastUpAngle = 0.0;
+    lastDownAngle = 0.0;
+    downLoops = 0;
+    upLoops = 0;    
     currentState = DOWNGLIDE;
     command = GLIDE;
   }

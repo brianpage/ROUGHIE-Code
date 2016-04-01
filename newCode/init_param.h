@@ -1,3 +1,9 @@
+//Record last bits of glide angles
+float lastUpAngle;
+float lastDownAngle;
+int downLoops;
+int upLoops;
+
 //Create objects
 Servo rotServo;
 File logfile; //SD logging stuff
@@ -97,8 +103,8 @@ int Vin_readback = A13;     // Battery voltage
 const int linmid = (340+430)/2;        // MIDDLE POSITION FOR LINEAR MASS
 const int linfrontlimit = 250; // FRONT LIMIT FOR LINEAR MASS
 const int linbacklimit = 600;  // BACK LIMIT FOR LINEAR MASS
-const int downFeedforward_default = 340;
-const int upFeedforward_default = 340;
+const int downFeedforward_default = 393;
+const int upFeedforward_default = (340+430)/2;
 
 // WATER TANK LIMITS
 const int tankmid = 270;        // MIDDLE POSITION FOR BALLAST TANK
@@ -120,7 +126,7 @@ const unsigned int riseTime_default = 28000;      // DEFAULT RISE TIME (MILLISEC
 const unsigned int allowedWorkTime_default = 60000;      // DEFAULT ALLOWED WORK TIME
 const int linNoseDownTarget_default = -30;    //Default glide angles
 const int linNoseUpTarget_default = 30;
-const float linkp_default = 20.0;
+const float linkp_default = 10.0;
 const float linki_default = 0.0;
 const float linkd_default = 0.0;
 const float rollkp_default = 0.2;
@@ -206,9 +212,10 @@ const char help_59[] PROGMEM = "\tgps";
 const char help_60[] PROGMEM = "\tecopuck";
 const char help_61[] PROGMEM = "\tpressure";
 const char help_62[] PROGMEM = "\tpower";
-const char help_63[] PROGMEM = "---------------------------------------";
+const char help_63[] PROGMEM = "\tglideAngles";
+const char help_64[] PROGMEM = "---------------------------------------";
 
-const char* const helpTable[] PROGMEM = {help_1,help_2,help_3,help_4,help_5,help_6,help_7,help_8,help_9,help_10,help_11,help_12,help_13,help_14,help_15,help_16,help_17,help_18,help_19,help_20,help_21,help_22,help_23,help_24,help_25,help_26,help_27,help_28,help_29,help_30,help_31,help_32,help_33,help_34,help_35,help_36,help_37,help_38,help_39,help_40,help_41,help_42,help_43,help_44,help_45,help_46,help_47,help_48,help_49,help_50,help_51,help_52,help_53,help_54,help_55,help_56,help_57,help_58,help_59,help_60,help_61,help_62,help_63};
+const char* const helpTable[] PROGMEM = {help_1,help_2,help_3,help_4,help_5,help_6,help_7,help_8,help_9,help_10,help_11,help_12,help_13,help_14,help_15,help_16,help_17,help_18,help_19,help_20,help_21,help_22,help_23,help_24,help_25,help_26,help_27,help_28,help_29,help_30,help_31,help_32,help_33,help_34,help_35,help_36,help_37,help_38,help_39,help_40,help_41,help_42,help_43,help_44,help_45,help_46,help_47,help_48,help_49,help_50,help_51,help_52,help_53,help_54,help_55,help_56,help_57,help_58,help_59,help_60,help_61,help_62,help_63,help_64};
 char buffer[80];
 
 int lin, pump, mode;

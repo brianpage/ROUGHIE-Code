@@ -4,6 +4,7 @@ int sawtooth(int &lin,float &rot,int &pump,int &linMode) {
   int pumpDone;
   int glideCompleted = 0;//returns 0 unless it just completed a glide
   if(currentState == DOWNGLIDE) {//DOWNGLIDE tries to send the ROUGHIE into a downward glide
+    
     pump = param.tankBackLimit;//pump to the backlimit
     pumpDone = checkPump(pump);//Returns true if done pumping
     //Linear Calculations
@@ -21,6 +22,12 @@ int sawtooth(int &lin,float &rot,int &pump,int &linMode) {
     } else {
       rot = 0.0;
     }
+
+    if(millis() - t0 > param.desTime - 1000) {
+      downLoops = downLoops + 1;
+      lastDownAngle = lastDownAngle + imu.pitch;
+      Serial.println(lastDownAngle/downLoops);
+    }
     
     if(millis() - t0 > param.desTime) {//Once its been gliding for desTime go to the next state
       currentState = NEUTRAL;
@@ -35,11 +42,17 @@ int sawtooth(int &lin,float &rot,int &pump,int &linMode) {
 
   if(currentState == NEUTRAL) {
     pump = param.tankMid;//Send the pump to the center
-    if(nextState == UPGLIDE && linMode == PWM) {
-      lin = param.linNoseDownTarget;
-    }
-    if(nextState == DOWNGLIDE && linMode == PWM) {
-      lin = param.linNoseUpTarget;
+    if(feedforward) {
+      if(nextState == UPGLIDE) {
+        lin = param.linNoseDownTarget;
+      }
+      if(nextState == DOWNGLIDE) {
+        lin = param.linNoseUpTarget;
+      }
+      mode = PWM;
+    } else {
+      lin = 0;
+      mode = PWM;
     }
     rot = rotStorage;
     //Roll Calculations
@@ -65,6 +78,13 @@ int sawtooth(int &lin,float &rot,int &pump,int &linMode) {
   }
 
   if(currentState == UPGLIDE) {
+    
+    if(millis() - t0 > param.riseTime - 1000) {
+      upLoops = upLoops + 1;
+      lastUpAngle = lastUpAngle + imu.pitch;
+      Serial.println(lastUpAngle/upLoops);
+    }
+    
     pump = param.tankFrontLimit;  //Empty the ballast tank  
     pumpDone = checkPump(pump);//Returns true if done pumping
     //Linear Calculations
@@ -109,6 +129,13 @@ int sawtooth(int &lin,float &rot,int &pump,int &linMode) {
   if(turnFeedback) {
     rot = rotPID(rot);
   }
+  if(glideCompleted && !(completedGlides+1 >= param.number_of_glides)) {
+    lastUpAngle = 0.0;
+    lastDownAngle = 0.0;
+    upLoops = 0;
+    downLoops = 0;
+  }
+  
   return glideCompleted;
   
 }
