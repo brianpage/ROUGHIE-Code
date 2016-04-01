@@ -1,10 +1,14 @@
-void actuate(float lin, float rot, int tank, int mode) {
-  //Bang Bang Control
-  if (mode == POSITION) {
+void actuate(int lin, float rot, int tank, int mode) { //lin is either PWM or position depending on mode.  rot is servo angle, tank is ballast tank reading
+  //Low level motion control, physically actuates things
+  
 
+  int currentLinPos = getFiltAnalog(linPos);
+  
+  if (mode == POSITION) {  //Bang Bang Control
+    analogWrite(motAPWM, param.linRate);
     //Pitch Mass Control
-    int currentLinPos = getFiltAnalog(linPos);
-    if (lin < param.linFrontLimit) {
+
+    if (lin < param.linFrontLimit) {//Double check to make sure we aren't going to run out of bounds
       Serial.println(F("Too far forward, going to limit"));
       lin = param.linFrontLimit;
     }
@@ -12,53 +16,54 @@ void actuate(float lin, float rot, int tank, int mode) {
       Serial.println(F("Too far backward, going to limit"));
       lin = param.linBackLimit;
     }
-    if(abs(currentLinPos - lin) < 20) {
-      Serial.println(F("Lin Done"));
-      analogWrite(motAPWM, 0);
+    if(abs(currentLinPos - lin) < 10) {//If we are close turn off
       digitalWrite(motStdby, LOW);
     } else {
-      if(currentLinPos > lin) {
+      if(currentLinPos > lin) {//Set motor direction
         digitalWrite(motAConf1, LOW);
         digitalWrite(motAConf2, HIGH);
       } else {
         digitalWrite(motAConf1, HIGH);
         digitalWrite(motAConf2, LOW);
       }
-      digitalWrite(motStdby, HIGH);
-      analogWrite(motAPWM, param.linRate);
+      digitalWrite(motStdby, HIGH);//Turn on the motor
+      
     }
   }
 
-  if (mode == PWM) {
+  if (mode == PWM) {//PWM mode is used for all controllers except feedforward
+    lin = constrain(lin,-255,255);//Set it in the PWM output range
     //Pitch Mass Control
-    int currentLinPos = getFiltAnalog(linPos);
-    if(lin > 0){//Rate direction switching
+
+    if(lin > 0 && currentLinPos <= param.linFrontLimit){//If it is at a limit and trying to go the wrong way, stop it
+      lin = 0;
+    }
+
+    if(lin < 0 && currentLinPos >= param.linBackLimit) {
+      lin = 0;
+    }
+    if(abs(lin) < 10) {//If it is super slow just stop
+      lin = 0;
+      digitalWrite(motStdby,LOW);
+    } else {
+      digitalWrite(motStdby, HIGH);//otherwise turn on the motor
+    }
+    if(lin > 0) {//Set direction
       digitalWrite(motAConf1, LOW);
-      digitalWrite(motAConf2, HIGH);
-      if(currentLinPos >= param.linBackLimit) {  //If it is trying to drive out of bounds turn off motor
-        digitalWrite(motStdby, LOW);
-      } else {
-        digitalWrite(motStdby, HIGH);
-      }
-      
+      digitalWrite(motAConf2, HIGH);      
     } else{
       digitalWrite(motAConf1, HIGH);
       digitalWrite(motAConf2, LOW);
-      if(currentLinPos <= param.linFrontLimit) {  //If it is trying to drive out of bounds turn off motor
-        digitalWrite(motStdby, LOW);
-      } else {
-        digitalWrite(motStdby, HIGH);
-      }
     }
-    if(abs(lin) < 10) {
-      lin = 0;
-    }
-    analogWrite(motAPWM,constrain(abs(lin),0,255));
+    //Serial.println(lin);
+    analogWrite(motAPWM,abs(lin));//Set output speed based on PWM rate
     
   }
 
   //Roll Control
-  rotServo.write(constrain(map(param.rotMid + rot,-45,45,rotPWMmin,rotPWMmax),rotPWMmin,rotPWMmax));
+  float rollOutput = constrain(mapfloat(param.rotMid + rot,-45.0,45.0,rotPWMmin,rotPWMmax),rotPWMmin,rotPWMmax);
+
+  rotServo.write(rollOutput);//Roll the servo to 'rot' which is a roll angle +/- 45 from centerline
   
   //Pump Control
   int currentTankPos = getFiltAnalog(tankLevel);
@@ -70,15 +75,17 @@ void actuate(float lin, float rot, int tank, int mode) {
     Serial.println(F("Too far forward, going to limit"));
     tank = param.tankFrontLimit;
   }
-  if(abs(currentTankPos - tank) < 10) {
-    Serial.println(F("Tank Done"));
+  
+  if(abs(currentTankPos - tank) < 10) {//If it is close turn off the pump
+    //Serial.println(F("Tank Done"));
     digitalWrite(pumpOn, LOW);
-  } else {
-    if(currentTankPos > tank) {
-      digitalWrite(pumpDir, HIGH);
-    } else {
-      digitalWrite(pumpDir, LOW);
-    }
-    digitalWrite(pumpOn, HIGH);
+    return;
   }
+  if(currentTankPos > tank) {//Set pump direction
+    digitalWrite(pumpDir, HIGH);
+  } else {
+    digitalWrite(pumpDir, LOW);
+  }
+  digitalWrite(pumpOn, HIGH);
+  return;
 }

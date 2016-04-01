@@ -1,4 +1,4 @@
-void paramInit(void) {
+void paramInit(void) {//Initiate the param structure to default values;
   param.linRate = linRate_default;
   param.linFrontLimit = linfrontlimit;
   param.linBackLimit = linbacklimit;
@@ -30,7 +30,7 @@ void paramInit(void) {
   param.dubinTime = dubinTime_default;
 }
 
-Fuzzy makeFuzzy(void) {
+void makeFuzzy(void) {//Create fuzzy
   // VARIABLES FOR LINEAR FUZZY CONTROLLER
   float fuzz_size = 5; //center fuzzy triangle size
   float fuzz_growth = 2; //scaling factor for fuzzy triangles away from center
@@ -95,7 +95,7 @@ Fuzzy makeFuzzy(void) {
   fuzzy->addFuzzyRule(fuzzyRule4);
 }
 
-void createSDfile(char* name_of_file) {
+void createSDfile(char* name_of_file) {//Create the SD file
   char filename[] = "LOGGER00.csv";
   for (uint8_t i = 0; i < 100; i++) {
     filename[6] = i/10 + '0';
@@ -112,10 +112,10 @@ void createSDfile(char* name_of_file) {
       Serial.println(filename);
   
       // connect to RTC
-      Wire.begin();  
-      if (!rtc.begin()) {
-        logfile.println(F("RTC failed"));
-      }
+      //Wire.begin();  
+      //if (!rtc.begin()) {
+      //  logfile.println(F("RTC failed"));
+     // }
   
       //logfile.println("millis,stamp,datetime,Pressure,Pitch,Roll,BallastTank,LinMassPos,tp1,tp2,yaw,rolld,pitchd,yawd,north,east,up,estdepth,ECOPUCK");    
       logfile.println(F("ms,Pressure,Pitch,Roll,BallastTank,LinMassPos,yaw,estdepth,Vin,Iin"));
@@ -128,7 +128,7 @@ void createSDfile(char* name_of_file) {
   //return filename;
 }
 
-void logData(uint32_t m) {
+void logData(uint32_t m) {//Update the SD file with new values
   // OPEN FILE
   logfile = SD.open(name_of_file, FILE_WRITE);
   

@@ -1,8 +1,8 @@
-int readSerial() {
+int readSerial() {//Reads serial for inputs, needs significant rewrite.
   const int BUFF_LEN = 80;
   char buff[BUFF_LEN];
-  DateTime now;
-  int command = NULL;
+//  DateTime now;
+  int command = GLIDE;
   // PROCESS SERIAL INPUT FROM USER (IF AVAILABLE)
   if(Serial.available()) // if command was read
   {
@@ -24,7 +24,7 @@ int readSerial() {
     
     else if(strcmp(arg[0], "start") == 0) {
       pressure_b = pressure_m * getFiltAnalog(pressureSensorPin);
-      Serial.println(F("Pressure Caanklibrated!"));
+      Serial.println(F("Pressure Calibrated!"));
       Serial.println(F("Starting"));
       command = START;
     }
@@ -45,10 +45,67 @@ int readSerial() {
       
       // OPEN FILE
       logfile = SD.open(name_of_file, FILE_WRITE);
-      logfile.println("");
-      logfile.println("");
+      logfile.println(F(""));
+      logfile.println(F(""));
       logfile.print(F("Notes,"));
       logfile.println(buff);
+      logfile.println(F(""));
+      logfile.println(F("Params"));
+      logfile.print(F("Lin Limits (front/mid/back), "));
+      logfile.print(param.linFrontLimit);
+      logfile.print(F(", "));
+      logfile.print(param.linMid);
+      logfile.print(F(", "));
+      logfile.println(param.linBackLimit);
+      logfile.print(F("Tank Limits (front/middle/back), "));
+      logfile.print(param.tankFrontLimit);
+      logfile.print(F(", "));
+      logfile.print(param.tankMid);
+      logfile.print(F(", "));
+      logfile.println(param.tankBackLimit);
+      logfile.print(F("Glide times (des/rise/neutral/dubin), "));
+      logfile.print(param.desTime);
+      logfile.print(F(", "));
+      logfile.print(param.riseTime);
+      logfile.print(F(", "));
+      logfile.print(param.neutralTime);
+      logfile.print(F(", "));
+      logfile.println(param.dubinTime);
+      logfile.print(F("Linear PID, "));
+      logfile.print(param.linkp);
+      logfile.print(F(", "));
+      logfile.print(param.linki);
+      logfile.print(F(", "));
+      logfile.println(param.linkd);
+      logfile.print(F("Roll PI, "));
+      logfile.print(param.rollkp);
+      logfile.print(F(", "));
+      logfile.println(param.rollki);
+      logfile.print(F("Feedforward Positions (down/up), "));
+      logfile.print(param.downFeedforward);
+      logfile.print(F(", "));
+      logfile.println(param.upFeedforward);
+      logfile.print(F("Target angles (down/up), "));
+      logfile.print(param.linNoseDownTarget);
+      logfile.print(F(", "));
+      logfile.println(param.linNoseUpTarget);
+      logfile.print(F("Rollover angle, "));
+      logfile.println(param.rollover);
+      logfile.println(F(""));
+      logfile.println(F("Controller Status"));
+      logfile.print(F("Feedforward, "));
+      logfile.println(feedforward);
+      logfile.print(F("Linear PID, "));
+      logfile.println(linPID);
+      logfile.print(F("Linear Fuzzy, "));
+      logfile.println(linFuzzy);
+      logfile.print(F("Circle, "));
+      logfile.println(circle);
+      logfile.print(F("Dubin, "));
+      logfile.println(dubin);
+      logfile.print(F("Turn Feedback, "));
+      logfile.println(turnFeedback);
+      logfile.flush();
       SDgo = 0;
       logfile.close();
       Serial.println(F("Logging stopped and log file was closed"));
@@ -134,8 +191,16 @@ int readSerial() {
     }
     
     else if(strcmp(arg[0], "gimme") == 0) {
-      
-      if(strcmp(arg[1], "power") == 0) {
+
+
+      if(strcmp(arg[1], "glideAngles") == 0) {
+        Serial.println(F("Final second IMU averages"));
+        Serial.print(F("Last Downglide Angle "));
+        Serial.println(lastDownAngle/downLoops);
+        Serial.print(F("Last Upglide Angle "));
+        Serial.println(lastUpAngle/upLoops);
+      } 
+      else if(strcmp(arg[1], "power") == 0) {
         double voltage = getFiltAnalog(Vin_readback) * 30 / 1023;
         double current = getFiltAnalog(Iin_readback) * 5 / 1.023 / 0.3; //In mA off by 3x!
         Serial.print(F("Battery voltage: "));
@@ -376,6 +441,9 @@ int readSerial() {
     }
     
     else if(strcmp(arg[0], "imucal") == 0) {
+      imu.rollOffset = 0;
+      imu.pitchOffset = 0;
+      updateIMU();
       imu.rollOffset = -imu.roll;
       imu.pitchOffset = -imu.pitch;
       Serial.println(F("IMU Calibrated"));
@@ -468,7 +536,7 @@ int readSerial() {
       
     }
       
-    else {
+    else if(strcmp(arg[0], "help") == 0){
       printHelp();
     }
   }
@@ -476,7 +544,7 @@ int readSerial() {
   return command;
 }
 
-void printController(void) {
+void printController(void) {//Print the different controllers statuses
     Serial.print(F("PID Status: "));
     Serial.println(linPID);
     Serial.print(F("Fuzzy Status: "));
@@ -491,10 +559,11 @@ void printController(void) {
     Serial.println(turnFeedback);
 }
 
-void printHelp(void) {
-  for (int i = 0; i < 63; i++)
+void printHelp(void) {//Print the help menu from FLASH memory
+  for (int i = 0; i < 64; i++)
   {
     strcpy_P(buffer, (char*)pgm_read_word(&(helpTable[i]))); // Necessary casts and dereferencing, just copy.
     Serial.println(buffer);
+    delay(10);
   }
 }
