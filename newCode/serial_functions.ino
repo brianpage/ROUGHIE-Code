@@ -28,6 +28,12 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
       Serial.println(F("Starting"));
       command = START;
     }
+
+    else if(strcmp(arg[0], "rollTest") == 0) {
+      pressure_b = pressure_m * getFiltAnalog(pressureSensorPin);
+      Serial.println(F("Roll test starting in 30 seconds"));
+      command = ROLLSTART;
+    }
     
     else if(strcmp(arg[0], "stop") == 0) {
       command = STOP;
@@ -560,7 +566,7 @@ void printController(void) {//Print the different controllers statuses
 }
 
 void printHelp(void) {//Print the help menu from FLASH memory
-  for (int i = 0; i < 64; i++)
+  for (int i = 0; i < 66; i++)
   {
     strcpy_P(buffer, (char*)pgm_read_word(&(helpTable[i]))); // Necessary casts and dereferencing, just copy.
     Serial.println(buffer);

@@ -118,7 +118,7 @@ void createSDfile(char* name_of_file) {//Create the SD file
      // }
   
       //logfile.println("millis,stamp,datetime,Pressure,Pitch,Roll,BallastTank,LinMassPos,tp1,tp2,yaw,rolld,pitchd,yawd,north,east,up,estdepth,ECOPUCK");    
-      logfile.println(F("ms,Pressure,Pitch,Roll,BallastTank,LinMassPos,yaw,estdepth,Vin,Iin"));
+      logfile.println(F("ms,Pressure,Pitch,Roll,BallastTank,LinMassPos,ServoAngle,yaw,estdepth,Vin,Iin"));
       logfile.close();
       //SDgo = 0;
       break;  // leave the loop!
@@ -151,6 +151,9 @@ void logData(uint32_t m) {//Update the SD file with new values
   logfile.print(", ");
   //linear mass position
   logfile.print(getFiltAnalog(linPos));
+  logfile.print(", ");
+  //Servo Angle
+  logfile.print(rotOutput);
   logfile.print(", ");
   //yaw
   logfile.print(imu.yaw);

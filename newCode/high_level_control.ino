@@ -6,9 +6,11 @@ int sawtooth(int &lin,float &rot,int &pump,int &linMode) {
   if(currentState == DOWNGLIDE) {//DOWNGLIDE tries to send the ROUGHIE into a downward glide
     
     pump = param.tankBackLimit;//pump to the backlimit
-    pumpDone = checkPump(pump);//Returns true if done pumping
+    //pumpDone = checkPump(pump);//Returns true if done pumping
+    bool ffStatus = checkFF(pump,param.linNoseDownTarget);
+    
     //Linear Calculations
-    if((feedforward && !pumpDone) || (!linPID && !linFuzzy)) {//Feedforward/feedback logic to determine the required output
+    if((feedforward && !ffStatus) || (!linPID && !linFuzzy)) {//Feedforward/feedback logic to determine the required output
       linMode = POSITION;
       lin = param.downFeedforward;
     } else {
@@ -86,9 +88,12 @@ int sawtooth(int &lin,float &rot,int &pump,int &linMode) {
     }
     
     pump = param.tankFrontLimit;  //Empty the ballast tank  
-    pumpDone = checkPump(pump);//Returns true if done pumping
+    //pumpDone = checkPump(pump);//Returns true if done pumping
+    bool ffStatus = checkFF(pump,param.linNoseDownTarget);
+    
+    
     //Linear Calculations
-    if((feedforward && !pumpDone) || (!linPID && !linFuzzy)) {//feedforward/feedback calculations
+    if((feedforward && !ffStatus) || (!linPID && !linFuzzy)) {//feedforward/feedback calculations
       linMode = POSITION;
       lin = param.upFeedforward;
     } else {

@@ -18,6 +18,17 @@ bool checkPump(int tank) {//boolean check to see if the pump is at the target
   }
 }
 
+bool checkFF(int tank, int angle) {
+  int currentTankPos = getFiltAnalog(tankLevel);
+  if(abs(currentTankPos - tank) < 10 && abs(imu.pitch - angle) < 5) {
+    return true;
+  }
+  if(millis() - t0 > param.FFtime) {
+    return true;
+  }
+  return false;  
+}
+
 bool checkMass(int mass) {//boolean check to see if the mass is at the target
   int currentMassPos = getFiltAnalog(linPos);
   if(abs(currentMassPos - mass) < 10) {

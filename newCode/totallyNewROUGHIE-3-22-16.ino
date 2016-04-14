@@ -25,6 +25,8 @@
 #define RESET 1
 #define START 2
 #define STOP 3
+#define ROLLTEST 4
+#define ROLLSTART 5
 
 
 //Define linear control modes
@@ -127,5 +129,48 @@ void loop() {
       command = RESET;
     }
   }
+  if (command == ROLLSTART) {
+    t0 = millis();
+    rollI = 0.0;
+    command = ROLLTEST;
+  }
+  if (command == ROLLTEST) {
+    float rollAngle;
+    uint32_t m = millis();  // UPDATE m, THE # OF MILLISECONDS SINCE STARTING
+    if(SDgo) {//If we are supposed to record, log data
+      logData(m);
+    }
+    if(m - t0 < 30000) {
+      rollAngle = 0;
+    } else if(m - t0 < 40000) {
+      rollAngle = param.rollover;
+    } else if (m - t0 < 50000) {
+      rollAngle = -param.rollover;
+    } else if (m - t0 < 60000) {
+      rollAngle = param.rollover;
+    } else if (m - t0 < 70000) {
+      rollAngle = -param.rollover;
+    } else if (m - t0 < 80000) {
+      rollAngle = param.rollover;
+    } else if (m - t0 < 90000) {
+      rollAngle = -param.rollover;
+    } else if (m - t0 < 100000) {
+      rollAngle = param.rollover;
+    } else if (m - t0 < 110000) {
+      rollAngle = -param.rollover;
+    } else {
+      command = RESET;
+    }
+//    Serial.print(rollAngle);
+//    Serial.print(F("\t"));
+    if(turnFeedback) {
+      rollAngle = rotPID(rollAngle);
+    }
+//    Serial.print(rollAngle);
+//    Serial.print(F("\t"));
+//    Serial.println(imu.roll);
+    actuate(param.linMid,rollAngle,param.tankMid,POSITION);    
+  }
+  
 
 }
