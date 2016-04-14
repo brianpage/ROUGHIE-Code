@@ -29,6 +29,11 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
       command = START;
     }
 
+    else if(strcmp(arg[0], "toDefault") == 0) {
+      paramInit();
+      Serial.println(F("Parameters reset to default"));
+    }
+
     else if(strcmp(arg[0], "rollTest") == 0) {
       pressure_b = pressure_m * getFiltAnalog(pressureSensorPin);
       Serial.println(F("Roll test starting in 30 seconds"));
@@ -111,6 +116,10 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
       logfile.println(dubin);
       logfile.print(F("Turn Feedback, "));
       logfile.println(turnFeedback);
+      logfile.print(F("Feedforward timeout, "));
+      logfile.println(param.FFtime);
+      logfile.print(F("Feedforward error bound, "));
+      logfile.println(param.FFerror);
       logfile.flush();
       SDgo = 0;
       logfile.close();
@@ -328,6 +337,15 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
         param.desTime = atoi(arg[2]);
         Serial.println(F("Updated Descent Time"));
       }
+      else if(strcmp(arg[1], "-FFerror") == 0) {
+        param.FFerror = atoi(arg[2]);
+        Serial.println(F("Updated Feedforward Error Bound"));
+      }
+
+      else if(strcmp(arg[1], "-fftime") == 0) {
+        param.FFtime = atoi(arg[2]);
+        Serial.println(F("Updated Feedforward Timeout"));
+      }
       
       else if(strcmp(arg[1], "-neutralTime") == 0) {
         param.neutralTime = atoi(arg[2]);
@@ -490,6 +508,10 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
       Serial.println(param.neutralTime);
       Serial.print(F("Dubin Time: "));
       Serial.println(param.dubinTime);
+      Serial.print(F("Feedforward timeout: "));
+      Serial.println(param.FFtime);
+      Serial.print(F("Feedforward error bounds: "));
+      Serial.println(param.FFerror);
       
       Serial.println(F("MIDDLE SETTINGS"));
       Serial.print(F("Tank: "));
@@ -566,7 +588,7 @@ void printController(void) {//Print the different controllers statuses
 }
 
 void printHelp(void) {//Print the help menu from FLASH memory
-  for (int i = 0; i < 66; i++)
+  for (int i = 0; i < 67; i++)
   {
     strcpy_P(buffer, (char*)pgm_read_word(&(helpTable[i]))); // Necessary casts and dereferencing, just copy.
     Serial.println(buffer);

@@ -7,10 +7,10 @@ int sawtooth(int &lin,float &rot,int &pump,int &linMode) {
     
     pump = param.tankBackLimit;//pump to the backlimit
     //pumpDone = checkPump(pump);//Returns true if done pumping
-    bool ffStatus = checkFF(pump,param.linNoseDownTarget);
+    checkFF(pump,param.linNoseDownTarget,flag);
     
     //Linear Calculations
-    if((feedforward && !ffStatus) || (!linPID && !linFuzzy)) {//Feedforward/feedback logic to determine the required output
+    if((feedforward && !flag) || (!linPID && !linFuzzy)) {//Feedforward/feedback logic to determine the required output
       linMode = POSITION;
       lin = param.downFeedforward;
     } else {
@@ -45,13 +45,14 @@ int sawtooth(int &lin,float &rot,int &pump,int &linMode) {
   if(currentState == NEUTRAL) {
     pump = param.tankMid;//Send the pump to the center
     if(feedforward) {
+      //Serial.println(nextState);
       if(nextState == UPGLIDE) {
-        lin = param.linNoseDownTarget;
+        lin = param.upFeedforward;
       }
       if(nextState == DOWNGLIDE) {
-        lin = param.linNoseUpTarget;
+        lin = param.downFeedforward;
       }
-      mode = PWM;
+      mode = POSITION;
     } else {
       lin = 0;
       mode = PWM;
@@ -77,6 +78,7 @@ int sawtooth(int &lin,float &rot,int &pump,int &linMode) {
       t0 = millis();
       Serial.println(F("Neutral Done"));
     }
+    flag = false;
   }
 
   if(currentState == UPGLIDE) {
@@ -89,11 +91,11 @@ int sawtooth(int &lin,float &rot,int &pump,int &linMode) {
     
     pump = param.tankFrontLimit;  //Empty the ballast tank  
     //pumpDone = checkPump(pump);//Returns true if done pumping
-    bool ffStatus = checkFF(pump,param.linNoseDownTarget);
+    checkFF(pump,param.linNoseUpTarget,flag);
     
     
     //Linear Calculations
-    if((feedforward && !ffStatus) || (!linPID && !linFuzzy)) {//feedforward/feedback calculations
+    if((feedforward && !flag) || (!linPID && !linFuzzy)) {//feedforward/feedback calculations
       linMode = POSITION;
       lin = param.upFeedforward;
     } else {

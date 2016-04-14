@@ -18,15 +18,17 @@ bool checkPump(int tank) {//boolean check to see if the pump is at the target
   }
 }
 
-bool checkFF(int tank, int angle) {
+void checkFF(int tank, int angle, bool &flag) {
   int currentTankPos = getFiltAnalog(tankLevel);
-  if(abs(currentTankPos - tank) < 10 && abs(imu.pitch - angle) < 5) {
-    return true;
+  if(abs(currentTankPos - tank) < 10 && abs(imu.pitch - angle) < param.FFerror) {
+    //Serial.println("FF Complete");
+    flag = true;
   }
+  
   if(millis() - t0 > param.FFtime) {
-    return true;
-  }
-  return false;  
+    //Serial.println("FF TIMEOUT");
+    flag = true;
+  }  
 }
 
 bool checkMass(int mass) {//boolean check to see if the mass is at the target

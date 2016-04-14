@@ -28,6 +28,8 @@ void paramInit(void) {//Initiate the param structure to default values;
   param.upFeedforward = upFeedforward_default;
   param.neutralTime = neutralTime_default;
   param.dubinTime = dubinTime_default;
+  param.FFtime = FFtime_default;
+  param.FFerror = FFerror_default;
 }
 
 void makeFuzzy(void) {//Create fuzzy

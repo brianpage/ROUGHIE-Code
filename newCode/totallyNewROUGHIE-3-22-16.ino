@@ -104,6 +104,7 @@ void loop() {
     downLoops = 0;
     upLoops = 0;    
     currentState = DOWNGLIDE;
+    flag = false;
     command = GLIDE;
   }
   if (command == STOP) {
