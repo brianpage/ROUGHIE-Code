@@ -28,6 +28,7 @@ bool turnFeedback = 0;
 int command;//Tracks the current command from serial
 bool flag = false;
 
+
 //Set up timing parameters
 uint32_t t0;
 int completedGlides;

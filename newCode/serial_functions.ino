@@ -342,7 +342,7 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
         Serial.println(F("Updated Feedforward Error Bound"));
       }
 
-      else if(strcmp(arg[1], "-fftime") == 0) {
+      else if(strcmp(arg[1], "-FFtime") == 0) {
         param.FFtime = atoi(arg[2]);
         Serial.println(F("Updated Feedforward Timeout"));
       }

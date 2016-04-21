@@ -6,16 +6,10 @@ float rotPID(float rot) {//Roll PID controller, needs to be tuned significantly
   return rotOutput;  
 }
 
-static float error_prev, error_act;
 int linPIDRate(int lin) {//Linear PID controller
-  float P,D;
-  error_prev = error_act;
-  error_act = -(lin - imu.pitch);
-  P = error_act;
-  linI = linI + error_act;
-
+  float P = -(lin - imu.pitch);
+  linI = linI + P/100.0;
   return param.linkp*P + param.linki*linI + param.linkd*imu.pitchD;
-  
 }
 
 int linFuzzyRate(int lin) {//Linear fuzzy controller

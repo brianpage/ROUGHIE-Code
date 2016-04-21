@@ -131,6 +131,8 @@ int sawtooth(int &lin,float &rot,int &pump,int &linMode) {
     if(linFuzzy) {
       lin = linFuzzyRate(lin);
     }
+  } else {
+    linI = 0.0;
   }
 
   if(turnFeedback) {
