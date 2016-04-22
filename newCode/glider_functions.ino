@@ -4,7 +4,7 @@ int getFiltAnalog(int APIN)//Averaging filter to get rid of some noise, may or m
   for(int a=0; a<10; a++) {
     val = val + analogRead(APIN);
   }
-  val = val/1;
+  val = val/10;
   return val;
 }
 
