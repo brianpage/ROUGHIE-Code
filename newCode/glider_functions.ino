@@ -1,7 +1,7 @@
 int getFiltAnalog(int APIN)//Averaging filter to get rid of some noise, may or may not be needed
 {
   int val = 0;
-  for(int a=0; a<1; a++) {
+  for(int a=0; a<10; a++) {
     val = val + analogRead(APIN);
   }
   val = val/1;
