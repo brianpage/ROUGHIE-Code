@@ -120,7 +120,7 @@ void createSDfile(char* name_of_file) {//Create the SD file
      // }
   
       //logfile.println("millis,stamp,datetime,Pressure,Pitch,Roll,BallastTank,LinMassPos,tp1,tp2,yaw,rolld,pitchd,yawd,north,east,up,estdepth,ECOPUCK");    
-      logfile.println(F("ms,Pressure,Pitch,Roll,BallastTank,LinMassPos,ServoAngle,yaw,estdepth,Vin,Iin"));
+      logfile.println(F("ms,Pressure,Pitch,Roll,BallastTank,LinMassPos,ServoAngle,yaw"));//,estdepth,Vin,Iin"));
       logfile.close();
       //SDgo = 0;
       break;  // leave the loop!
@@ -130,7 +130,64 @@ void createSDfile(char* name_of_file) {//Create the SD file
   //return filename;
 }
 
-void logData(uint32_t m) {//Update the SD file with new values
+//void logData(uint32_t m) {//Update the SD file with new values
+//  // OPEN FILE
+//  logfile = SD.open(name_of_file, FILE_WRITE);
+//  
+//  //millis
+//  logfile.print(m);           // milliseconds since start
+//  logfile.print(", "); 
+//  
+//  // logging data 
+//  //pressure   
+//  logfile.print(getFiltAnalog(pressureSensorPin));
+//  logfile.print(", ");    
+//  //pitch
+//  logfile.print(imu.pitch);// change the name if neccessary
+//  logfile.print(", ");
+//  //roll
+//  logfile.print(imu.roll);
+//  logfile.print(", ");
+//  //water tank position    
+//  logfile.print(getFiltAnalog(tankLevel));
+//  logfile.print(", ");
+//  //linear mass position
+//  logfile.print(getFiltAnalog(linPos));
+//  logfile.print(", ");
+//  //Servo Angle
+//  logfile.print(rollOutput);
+//  logfile.print(", ");
+//  //yaw
+//  logfile.print(imu.yaw);
+//  logfile.println(", ");
+//  
+//  
+////  //estimated depth
+////  logfile.print(pressure_m * (getFiltAnalog(pressureSensorPin) - pressure_b));
+////  logfile.print(", ");
+////  //Vin
+////  logfile.print( getFiltAnalog(Vin_readback) );
+////  logfile.print(", ");
+////  //Iin
+////  logfile.print( getFiltAnalog(Iin_readback) );
+////  logfile.println("");
+////  
+//  // Now we write data to disk! Don't sync too often - requires 2048 bytes of I/O to SD card
+//  // which uses a bunch of power and takes time
+////  if ((millis() - syncTime) > SYNC_INTERVAL) {
+////    syncTime = millis();
+////  
+////    // updating FAT!
+////    logfile.flush();
+////  }
+////  if((logfile.size()-syncSize)<SYNC_SIZE){
+////    syncSize=logfile.size();
+////    logfile.flush();
+////  }
+//  logfile.close();
+//}
+
+void logData(uint32_t m) {
   // OPEN FILE
   logfile = SD.open(name_of_file, FILE_WRITE);
   
@@ -155,31 +212,35 @@ void logData(uint32_t m) {//Update the SD file with new values
   logfile.print(getFiltAnalog(linPos));
   logfile.print(", ");
   //Servo Angle
-  logfile.print(rotOutput);
+  logfile.print(rotStor);
   logfile.print(", ");
   //yaw
   logfile.print(imu.yaw);
-  logfile.print(", ");
+  logfile.println(", ");
   
   
-  //estimated depth
-  logfile.print(pressure_m * (getFiltAnalog(pressureSensorPin) - pressure_b));
-  logfile.print(", ");
-  //Vin
-  logfile.print( getFiltAnalog(Vin_readback) );
-  logfile.print(", ");
-  //Iin
-  logfile.print( getFiltAnalog(Iin_readback) );
-  logfile.println("");
-  
+//  //estimated depth
+//  logfile.print(pressure_m * (getFiltAnalog(pressureSensorPin) - pressure_b));
+//  logfile.print(", ");
+//  //Vin
+//  logfile.print( getFiltAnalog(Vin_readback) );
+//  logfile.print(", ");
+//  //Iin
+//  logfile.print( getFiltAnalog(Iin_readback) );
+//  logfile.println("");
+//  
   // Now we write data to disk! Don't sync too often - requires 2048 bytes of I/O to SD card
   // which uses a bunch of power and takes time
-  if ((millis() - syncTime) > SYNC_INTERVAL) {
-    syncTime = millis();
-  
-    // updating FAT!
-    logfile.flush();
-  }
-  
+//  if ((millis() - syncTime) > SYNC_INTERVAL) {
+//    syncTime = millis();
+//  
+//    // updating FAT!
+//    logfile.flush();
+//  }
+//  if((logfile.size()-syncSize)<SYNC_SIZE){
+//    syncSize=logfile.size();
+//    logfile.flush();
+//  }
   logfile.close();
 }
+

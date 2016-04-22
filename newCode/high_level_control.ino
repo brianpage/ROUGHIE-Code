@@ -44,7 +44,7 @@ int sawtooth(int &lin,float &rot,int &pump,int &linMode) {
 
   if(currentState == NEUTRAL) {
     pump = param.tankMid;//Send the pump to the center
-    if(feedforward) {
+    if(feedforward && millis() - t0 > pumpTime) {
       //Serial.println(nextState);
       if(nextState == UPGLIDE) {
         lin = param.upFeedforward;
@@ -58,20 +58,7 @@ int sawtooth(int &lin,float &rot,int &pump,int &linMode) {
       mode = PWM;
     }
     rot = rotStorage;
-    //Roll Calculations
-//    if(circle || (dubin && (millis() - t0 < param.dubinTime))) {
-//      if(dubin){
-//        rot = param.rollover;
-//      } else {
-//        if(nextState = UPGLIDE) {
-//          rot = param.rollover;
-//        } else {
-//          rot = -param.rollover;
-//        }
-//      }
-//    } else {
-//      rot = 0.0;
-//    }
+
     
     if(millis() - t0 > param.neutralTime) {//Once neutral time is complete go to the next state
       currentState = nextState;

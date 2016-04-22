@@ -119,10 +119,10 @@ void loop() {
   }
   if (command == GLIDE) {//Runs whenever while gliding
     //First do high level control
-    uint32_t m = millis();  // UPDATE m, THE # OF MILLISECONDS SINCE STARTING
-    if(SDgo) {//If we are supposed to record, log data
-      logData(m);
-    }
+//    uint32_t m = millis();  // UPDATE m, THE # OF MILLISECONDS SINCE STARTING
+//    if(SDgo) {//If we are supposed to record, log data
+//      logData(m);
+//    }
     completedGlides = completedGlides + sawtooth(lin,rot,pump,mode);//sawtooth function does timing based high level control and returns a 1 if it completed a glide cycle, otherwise zero.
     actuate(lin,rot,pump,mode);//Low level control of motors and such.
     if(completedGlides >= param.number_of_glides) {//Once it completes its command go to RESET
@@ -137,27 +137,27 @@ void loop() {
   }
   if (command == ROLLTEST) {
     float rollAngle;
-    uint32_t m = millis();  // UPDATE m, THE # OF MILLISECONDS SINCE STARTING
-    if(SDgo) {//If we are supposed to record, log data
-      logData(m);
-    }
+//    uint32_t m = millis();  // UPDATE m, THE # OF MILLISECONDS SINCE STARTING
+//    if(SDgo) {//If we are supposed to record, log data
+//      logData(m);
+//    }
     if(m - t0 < 30000) {
       rollAngle = 0;
-    } else if(m - t0 < 40000) {
+    } else if(m - t0 < 45000) {
       rollAngle = param.rollover;
-    } else if (m - t0 < 50000) {
-      rollAngle = -param.rollover;
     } else if (m - t0 < 60000) {
-      rollAngle = param.rollover;
-    } else if (m - t0 < 70000) {
       rollAngle = -param.rollover;
-    } else if (m - t0 < 80000) {
+    } else if (m - t0 < 75000) {
       rollAngle = param.rollover;
     } else if (m - t0 < 90000) {
       rollAngle = -param.rollover;
-    } else if (m - t0 < 100000) {
+    } else if (m - t0 < 105000) {
       rollAngle = param.rollover;
-    } else if (m - t0 < 110000) {
+    } else if (m - t0 < 120000) {
+      rollAngle = -param.rollover;
+    } else if (m - t0 < 135000) {
+      rollAngle = param.rollover;
+    } else if (m - t0 < 150000) {
       rollAngle = -param.rollover;
     } else {
       command = RESET;
@@ -171,7 +171,8 @@ void loop() {
 //    Serial.print(F("\t"));
 //    Serial.println(imu.roll);
     actuate(param.linMid,rollAngle,param.tankMid,POSITION);    
+
   }
   
-
+  //Serial.println(millis()-m);
 }

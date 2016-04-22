@@ -592,6 +592,6 @@ void printHelp(void) {//Print the help menu from FLASH memory
   {
     strcpy_P(buffer, (char*)pgm_read_word(&(helpTable[i]))); // Necessary casts and dereferencing, just copy.
     Serial.println(buffer);
-    delay(10);
+    delay(5);
   }
 }

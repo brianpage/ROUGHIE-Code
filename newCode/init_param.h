@@ -11,6 +11,8 @@ File logfile; //SD logging stuff
 //Set up SD card stuff
 #define SYNC_INTERVAL 1000
 uint32_t syncTime = 0;
+//#define SYNC_SIZE 512
+//uint32_t syncSize = 0;
 char* name_of_file = "LOGGER00.csv";
 
 //Setup fuzzy object
@@ -144,11 +146,14 @@ const unsigned int neutralTime_default = 10000;  //Neutral wait time at glide in
 const unsigned int dubinTime_default = 10000;   //Turning time for dubins path
 const unsigned int FFtime_default = 20000;
 const int FFerror_default = 5;
+const unsigned int pumpTime = 5000;
 
 //Initiate PID stuff
 float linI = 0.0;
 float rollI = 0.0;
 float rotOutput = 0.0;
+float rollOutput;
+float rotStor;
 
 //Set up pressure sensor calibration
 double pressure_m = 0.0423062;
