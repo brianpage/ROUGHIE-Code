@@ -19,6 +19,7 @@ void paramInit(void) {//Initiate the param structure to default values;
   param.linkd = linkd_default;
   param.rollkp = rollkp_default;
   param.rollki = rollki_default;
+  param.rollkd = rollkd_default;
   param.number_of_glides = number_of_glides_default;
   param.glide_cycle_bottom = glide_cycle_bottom_default;
   param.glide_cycle_top = glide_cycle_top_default;
@@ -122,7 +123,7 @@ void createSDfile(char* name_of_file) {//Create the SD file
     stdioFile.clearerr();
     return;
   }
-  stdioFile.println(F("m,pitch,roll,yaw,linPos,tankPos,pressure,servo"));
+  stdioFile.println(F("m,pitch,roll,yaw,linPos,tankPos,pressure,compassX,compassY,compassZ,heading,servo"));
 }
 
 void logData() {
@@ -133,6 +134,10 @@ void logData() {
   stdioFile.printField(glider.linPos,',');
   stdioFile.printField(glider.tankPos,',');
   stdioFile.printField(glider.pressure,',');
+  stdioFile.printField(compass.rawX,',');
+  stdioFile.printField(compass.rawY,',');
+  stdioFile.printField(compass.rawZ,',');
+  stdioFile.printField(compass.heading,',');
   stdioFile.println(rotStor);
   //stdioFile.fflush();
 }

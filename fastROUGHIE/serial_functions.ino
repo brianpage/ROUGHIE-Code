@@ -434,6 +434,11 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
         Serial.print(F("Roll Ki updated to: "));
         Serial.println(param.rollki);
       }
+      else if(strcmp(arg[1], "-rollkd") == 0) {
+        param.rollkd = atof(arg[2]);        
+        Serial.print(F("Roll Kd updated to: "));
+        Serial.println(param.rollkd);
+      }
       
       else if(strcmp(arg[1], "-linNoseUpTarget") == 0) {
         param.linNoseUpTarget = atoi(arg[2]);

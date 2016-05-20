@@ -58,6 +58,7 @@ struct param_t {
   float linkd;                      // DERIVATIVE GAIN FOR LINEAR MASS PID CONTROLLER
   float rollkp;
   float rollki;
+  float rollkd;
   int linNoseDownTarget;            // GLIDER ANGLE TARGET FOR DESCENT
   int linNoseUpTarget;              // GLIDER ANGLE TARGET FOR ASCENT
   int number_of_glides;             // NUMBER OF GLIDE CYCLES TO COMPLETE BEFORE RETURNING TO SURFACE
@@ -154,7 +155,8 @@ const float linkp_default = 10.0;
 const float linki_default = 0.0;
 const float linkd_default = 0.0;
 const float rollkp_default = 0.2;
-const float rollki_default = 0.1;
+const float rollki_default = 0.0;
+const float rollkd_default = 0.0;
 const int number_of_glides_default = 3;
 const float glide_cycle_bottom_default = 6;   //Depth target in feet (experimental)
 const float glide_cycle_top_default = 2;
