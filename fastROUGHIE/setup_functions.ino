@@ -100,7 +100,8 @@ void makeFuzzy(void) {//Create fuzzy
 void createSDfile(char* name_of_file) {//Create the SD file
 
   if(!sd.begin(10)) {
-    sd.errorHalt();
+    sd.errorPrint(F("SD isn't working, try again?"));
+    return;
   }
   char filename[] = "LOGGER00.csv";
   for (uint8_t i = 0; i < 100; i++) {
@@ -110,12 +111,15 @@ void createSDfile(char* name_of_file) {//Create the SD file
       Serial.print(F("Logging to: "));
       Serial.println(filename);
       strcpy(name_of_file, filename);
+      stdioFile.clearerr();
       break;
     }
+    stdioFile.clearerr();
 
   }
   if(!stdioFile.fopen(filename,"w+")) {
-    Serial.println(F("fopen fail"));
+    Serial.println(F("fopen fail, try again (or maybe the SD card is not working right) "));
+    stdioFile.clearerr();
     return;
   }
   stdioFile.println(F("m,pitch,roll,yaw,linPos,tankPos,pressure,servo"));

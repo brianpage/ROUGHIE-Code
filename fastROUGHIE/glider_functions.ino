@@ -73,3 +73,23 @@ void updateIMU(void) {//Update the IMU structure
   imu.rollD = imu.roll - temp;
   imu.roll = temp;
 }
+
+void updateCompass(void) {
+  Wire.beginTransmission(address);
+  Wire.write(0x03);
+  Wire.endTransmission();
+  Wire.requestFrom(address,6);
+  if(6<=Wire.available()) {
+    compass.rawX = Wire.read()<<8;
+    compass.rawX |= Wire.read(); //X lsb
+    compass.rawZ = Wire.read()<<8; //Z msb
+    compass.rawZ |= Wire.read(); //Z lsb
+    compass.rawY = Wire.read()<<8; //Y msb
+    compass.rawY |= Wire.read(); //Y lsb
+  }
+  float compX = compass.rawX*cos(imu.pitch)+compass.rawZ*sin(imu.pitch);
+  float compY = compass.rawX*sin(imu.roll)*sin(imu.pitch) + compass.rawY*cos(imu.roll)-compass.rawZ*sin(imu.roll)*cos(imu.pitch);
+  
+  compass.heading = 180*atan2(compY,compX)/3.14;
+}
+

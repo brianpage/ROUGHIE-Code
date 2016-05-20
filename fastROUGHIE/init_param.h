@@ -6,7 +6,7 @@ int upLoops;
 
 //Create objects
 Servo rotServo;
-File logfile; //SD logging stuff
+//File logfile; //SD logging stuff
 
 //Set up SD card stuff
 //#define SYNC_INTERVAL 1000
@@ -86,6 +86,14 @@ struct imu_t {
   float rollOffset;
 }
 imu;
+
+struct compass_t {
+  int rawX;
+  int rawY;
+  int rawZ;
+  float heading;
+}
+compass;
 
 //Glider structure, gets updated every loop
 struct glider_t {

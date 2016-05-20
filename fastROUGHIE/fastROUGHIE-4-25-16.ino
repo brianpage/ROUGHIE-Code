@@ -12,7 +12,7 @@
 #include <FuzzySet.h>
 #include <SoftwareSerial.h>
 #include <SdFat.h>
-//#include <Wire.h>
+#include <Wire.h>
 #include <SPI.h>
 #include <Servo.h>
 //#include <TinyGPS.h>
@@ -38,12 +38,19 @@
 #define DOWNGLIDE 1
 #define NEUTRAL 2
 #define UPGLIDE 3
-    
+
+//define the compass
+#define address 0x1E    
 
 void setup() {
   //Setup things  
   Serial3.begin(115200);//IMU Serial
   Serial.begin(9600);//Comm serial
+  Wire.begin();
+  Wire.beginTransmission(address);
+  Wire.write(0x02);
+  Wire.write(0x00);
+  Wire.endTransmission();  
   Serial.setTimeout(10);
   Serial.println(F("Version 3.22.16 Totally new code"));
   printHelp();
@@ -71,6 +78,7 @@ void setup() {
 
 void loop() {
   updateIMU();
+  updateCompass();
   updateGlider();
   if(SDgo) {//If we are supposed to record, log data
     logData();
