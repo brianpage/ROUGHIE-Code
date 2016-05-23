@@ -88,8 +88,11 @@ void updateCompass(void) {//Update compass measurements. Works with HMC5883L chi
     compass.rawY |= Wire.read(); //Y lsb
   }
   //Perform tilt compensation based on IMU measurements, works reasonably well up to about 45 degrees.
-  float compX = compass.rawX*cos(0.017444*imu.pitch)+compass.rawY*sin(0.017444*imu.roll)*sin(0.017444*imu.pitch)+compass.rawZ*cos(0.017444*imu.roll)*sin(0.017444*imu.pitch);
-  float compY = compass.rawY*cos(0.017444*imu.roll)-compass.rawZ*sin(0.017444*imu.roll);
+  //float compX = compass.rawX*cos(0.017444*imu.pitch)+compass.rawY*sin(0.017444*imu.roll)*sin(0.017444*imu.pitch)+compass.rawZ*cos(0.017444*imu.roll)*sin(0.017444*imu.pitch);
+  //float compY = compass.rawY*cos(0.017444*imu.roll)-compass.rawZ*sin(0.017444*imu.roll);
+
+  float compX = compass.rawX*cos(0.01744*imu.pitch)+compass.rawZ*sin(0.01744*imu.pitch);
+  float compY = compass.rawX*sin(0.01744*imu.roll)*sin(0.01744*imu.pitch)+compass.rawY*cos(0.01744*imu.roll)-compass.rawZ*sin(0.01744*imu.roll)*cos(0.01744*imu.pitch);
   
   compass.heading = 180*atan2(-compY,compX)/3.14;//-4-4/60;//heading adjusted for declination in Houghton
   Serial.println(compass.heading);
