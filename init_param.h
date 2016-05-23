@@ -6,11 +6,13 @@ int upLoops;
 
 //Create objects
 Servo rotServo;
-File logfile; //SD logging stuff
+//File logfile; //SD logging stuff
 
 //Set up SD card stuff
-#define SYNC_INTERVAL 500
-uint32_t syncTime = 0;
+//#define SYNC_INTERVAL 1000
+//uint32_t syncTime = 0;
+////#define SYNC_SIZE 512
+////uint32_t syncSize = 0;
 char* name_of_file = "LOGGER00.csv";
 
 //Setup fuzzy object
@@ -26,9 +28,12 @@ bool linFuzzy = 0;
 bool pressureControl = 0;
 bool turnFeedback = 0;
 int command;//Tracks the current command from serial
+bool flag = false;
+
 
 //Set up timing parameters
 unsigned long t0;
+unsigned long tstart;
 int completedGlides;
 int currentState;
 int nextState;
@@ -53,6 +58,7 @@ struct param_t {
   float linkd;                      // DERIVATIVE GAIN FOR LINEAR MASS PID CONTROLLER
   float rollkp;
   float rollki;
+  float rollkd;
   int linNoseDownTarget;            // GLIDER ANGLE TARGET FOR DESCENT
   int linNoseUpTarget;              // GLIDER ANGLE TARGET FOR ASCENT
   int number_of_glides;             // NUMBER OF GLIDE CYCLES TO COMPLETE BEFORE RETURNING TO SURFACE
@@ -64,6 +70,8 @@ struct param_t {
   int upFeedforward;                // up feedforward location
   unsigned int neutralTime;         // neutral wait time
   unsigned int dubinTime;           // dubin turn time
+  unsigned int FFtime;              // feedforward timeout
+  int FFerror;                      // feedforward error bounds
 }
 param;
 
@@ -79,6 +87,23 @@ struct imu_t {
   float rollOffset;
 }
 imu;
+
+struct compass_t {
+  int rawX;
+  int rawY;
+  int rawZ;
+  float heading;
+}
+compass;
+
+//Glider structure, gets updated every loop
+struct glider_t {
+  int linPos;
+  int tankPos;
+  int pressure;
+  unsigned long runTime;
+}
+glider;
 
 //Setup pin numbers
 const int motAPWM = 3;//Actual Pin: 2;      // PWM PIN FOR LINEAR MASS MOTOR
@@ -130,7 +155,8 @@ const float linkp_default = 10.0;
 const float linki_default = 0.0;
 const float linkd_default = 0.0;
 const float rollkp_default = 0.2;
-const float rollki_default = 0.1;
+const float rollki_default = 0.0;
+const float rollkd_default = 0.0;
 const int number_of_glides_default = 3;
 const float glide_cycle_bottom_default = 6;   //Depth target in feet (experimental)
 const float glide_cycle_top_default = 2;
@@ -138,11 +164,16 @@ const int desiredRotaryPosition_default = 90;
 const int rollover_default = 20;          //Default roll angle for turn and dubin
 const unsigned int neutralTime_default = 10000;  //Neutral wait time at glide inflection
 const unsigned int dubinTime_default = 10000;   //Turning time for dubins path
+const unsigned int FFtime_default = 20000;
+const int FFerror_default = 5;
+const unsigned int pumpTime = 5000;
 
 //Initiate PID stuff
 float linI = 0.0;
 float rollI = 0.0;
 float rotOutput = 0.0;
+float rollOutput;
+float rotStor = 0.0;
 
 //Set up pressure sensor calibration
 double pressure_m = 0.0423062;
@@ -201,22 +232,31 @@ const char help_48[] PROGMEM = "\tlinkd - Linear mass PID derivative gain";
 const char help_49[] PROGMEM = "\trollkp - Roll PID proportional gain";
 const char help_50[] PROGMEM = "\trollki - Roll PID integral gain";
 const char help_51[] PROGMEM = "\trollkd - Roll PID derivative gain";
-const char help_52[] PROGMEM = "gimme <something> - prints the current reading of <something>";
-const char help_53[] PROGMEM = "Things to look at are:";
-const char help_54[] PROGMEM = "\troll";
-const char help_55[] PROGMEM = "\tpitch";
-const char help_56[] PROGMEM = "\tattitude";
-const char help_57[] PROGMEM = "\ttank";
-const char help_58[] PROGMEM = "\tlinear";
-const char help_59[] PROGMEM = "\tgps";
-const char help_60[] PROGMEM = "\tecopuck";
-const char help_61[] PROGMEM = "\tpressure";
-const char help_62[] PROGMEM = "\tpower";
-const char help_63[] PROGMEM = "\tglideAngles";
-const char help_64[] PROGMEM = "---------------------------------------";
+const char help_52[] PROGMEM = "\tFFtime - feedforward time";
+const char help_53[] PROGMEM = "\tFFerror - feedforward error bounds";
+const char help_54[] PROGMEM = "gimme <something> - prints the current reading of <something>";
+const char help_55[] PROGMEM = "Things to look at are:";
+const char help_56[] PROGMEM = "\troll";
+const char help_57[] PROGMEM = "\tpitch";
+const char help_58[] PROGMEM = "\tattitude";
+const char help_59[] PROGMEM = "\ttank";
+const char help_60[] PROGMEM = "\tlinear";
+const char help_61[] PROGMEM = "\tgps";
+const char help_62[] PROGMEM = "\tecopuck";
+const char help_63[] PROGMEM = "\tpressure";
+const char help_64[] PROGMEM = "\tpower";
+const char help_65[] PROGMEM = "\tglideAngles";
+const char help_66[] PROGMEM = "rollTest - tests roll system step response";
+const char help_67[] PROGMEM = "toDefault - resets parameters to default values";
+const char help_68[] PROGMEM = "---------------------------------------";
 
-const char* const helpTable[] PROGMEM = {help_1,help_2,help_3,help_4,help_5,help_6,help_7,help_8,help_9,help_10,help_11,help_12,help_13,help_14,help_15,help_16,help_17,help_18,help_19,help_20,help_21,help_22,help_23,help_24,help_25,help_26,help_27,help_28,help_29,help_30,help_31,help_32,help_33,help_34,help_35,help_36,help_37,help_38,help_39,help_40,help_41,help_42,help_43,help_44,help_45,help_46,help_47,help_48,help_49,help_50,help_51,help_52,help_53,help_54,help_55,help_56,help_57,help_58,help_59,help_60,help_61,help_62,help_63,help_64};
+const char* const helpTable[] PROGMEM = {help_1,help_2,help_3,help_4,help_5,help_6,help_7,help_8,help_9,help_10,help_11,help_12,help_13,help_14,help_15,help_16,help_17,help_18,help_19,help_20,help_21,help_22,help_23,help_24,help_25,help_26,help_27,help_28,help_29,help_30,help_31,help_32,help_33,help_34,help_35,help_36,help_37,help_38,help_39,help_40,help_41,help_42,help_43,help_44,help_45,help_46,help_47,help_48,help_49,help_50,help_51,help_52,help_53,help_54,help_55,help_56,help_57,help_58,help_59,help_60,help_61,help_62,help_63,help_64,help_65,help_66,help_67,help_68};
 char buffer[80];
 
 int lin, pump, mode;
 float rot,rotStorage;
+
+///SD LOGGING SETUP
+SdFat sd;
+StdioStream stdioFile;
+

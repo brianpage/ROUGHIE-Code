@@ -6,9 +6,11 @@ int sawtooth(int &lin,float &rot,int &pump,int &linMode) {
   if(currentState == DOWNGLIDE) {//DOWNGLIDE tries to send the ROUGHIE into a downward glide
     
     pump = param.tankBackLimit;//pump to the backlimit
-    pumpDone = checkPump(pump);//Returns true if done pumping
+    //pumpDone = checkPump(pump);//Returns true if done pumping
+    checkFF(pump,param.linNoseDownTarget,flag);
+    
     //Linear Calculations
-    if((feedforward && !pumpDone) || (!linPID && !linFuzzy)) {//Feedforward/feedback logic to determine the required output
+    if((feedforward && !flag) || (!linPID && !linFuzzy)) {//Feedforward/feedback logic to determine the required output
       linMode = POSITION;
       lin = param.downFeedforward;
     } else {
@@ -42,39 +44,28 @@ int sawtooth(int &lin,float &rot,int &pump,int &linMode) {
 
   if(currentState == NEUTRAL) {
     pump = param.tankMid;//Send the pump to the center
-    if(feedforward) {
+    if(feedforward && millis() - t0 > pumpTime) {
+      //Serial.println(nextState);
       if(nextState == UPGLIDE) {
-        lin = param.linNoseDownTarget;
+        lin = param.upFeedforward;
       }
       if(nextState == DOWNGLIDE) {
-        lin = param.linNoseUpTarget;
+        lin = param.downFeedforward;
       }
-      mode = PWM;
+      mode = POSITION;
     } else {
       lin = 0;
       mode = PWM;
     }
     rot = rotStorage;
-    //Roll Calculations
-//    if(circle || (dubin && (millis() - t0 < param.dubinTime))) {
-//      if(dubin){
-//        rot = param.rollover;
-//      } else {
-//        if(nextState = UPGLIDE) {
-//          rot = param.rollover;
-//        } else {
-//          rot = -param.rollover;
-//        }
-//      }
-//    } else {
-//      rot = 0.0;
-//    }
+
     
     if(millis() - t0 > param.neutralTime) {//Once neutral time is complete go to the next state
       currentState = nextState;
       t0 = millis();
       Serial.println(F("Neutral Done"));
     }
+    flag = false;
   }
 
   if(currentState == UPGLIDE) {
@@ -86,9 +77,12 @@ int sawtooth(int &lin,float &rot,int &pump,int &linMode) {
     }
     
     pump = param.tankFrontLimit;  //Empty the ballast tank  
-    pumpDone = checkPump(pump);//Returns true if done pumping
+    //pumpDone = checkPump(pump);//Returns true if done pumping
+    checkFF(pump,param.linNoseUpTarget,flag);
+    
+    
     //Linear Calculations
-    if((feedforward && !pumpDone) || (!linPID && !linFuzzy)) {//feedforward/feedback calculations
+    if((feedforward && !flag) || (!linPID && !linFuzzy)) {//feedforward/feedback calculations
       linMode = POSITION;
       lin = param.upFeedforward;
     } else {
@@ -124,6 +118,8 @@ int sawtooth(int &lin,float &rot,int &pump,int &linMode) {
     if(linFuzzy) {
       lin = linFuzzyRate(lin);
     }
+  } else {
+    linI = 0.0;
   }
 
   if(turnFeedback) {

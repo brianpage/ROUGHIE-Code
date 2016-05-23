@@ -23,10 +23,21 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
     }
     
     else if(strcmp(arg[0], "start") == 0) {
-      pressure_b = pressure_m * getFiltAnalog(pressureSensorPin);
+      pressure_b = pressure_m * glider.pressure;
       Serial.println(F("Pressure Calibrated!"));
       Serial.println(F("Starting"));
       command = START;
+    }
+
+    else if(strcmp(arg[0], "toDefault") == 0) {
+      paramInit();
+      Serial.println(F("Parameters reset to default"));
+    }
+
+    else if(strcmp(arg[0], "rollTest") == 0) {
+      pressure_b = pressure_m * glider.pressure;
+      Serial.println(F("Roll test starting in 30 seconds"));
+      command = ROLLSTART;
     }
     
     else if(strcmp(arg[0], "stop") == 0) {
@@ -43,71 +54,76 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
     
     else if(strcmp(arg[0], "sdstop") == 0) {
       
-      // OPEN FILE
-      logfile = SD.open(name_of_file, FILE_WRITE);
-      logfile.println(F(""));
-      logfile.println(F(""));
-      logfile.print(F("Notes,"));
-      logfile.println(buff);
-      logfile.println(F(""));
-      logfile.println(F("Params"));
-      logfile.print(F("Lin Limits (front/mid/back), "));
-      logfile.print(param.linFrontLimit);
-      logfile.print(F(", "));
-      logfile.print(param.linMid);
-      logfile.print(F(", "));
-      logfile.println(param.linBackLimit);
-      logfile.print(F("Tank Limits (front/middle/back), "));
-      logfile.print(param.tankFrontLimit);
-      logfile.print(F(", "));
-      logfile.print(param.tankMid);
-      logfile.print(F(", "));
-      logfile.println(param.tankBackLimit);
-      logfile.print(F("Glide times (des/rise/neutral/dubin), "));
-      logfile.print(param.desTime);
-      logfile.print(F(", "));
-      logfile.print(param.riseTime);
-      logfile.print(F(", "));
-      logfile.print(param.neutralTime);
-      logfile.print(F(", "));
-      logfile.println(param.dubinTime);
-      logfile.print(F("Linear PID, "));
-      logfile.print(param.linkp);
-      logfile.print(F(", "));
-      logfile.print(param.linki);
-      logfile.print(F(", "));
-      logfile.println(param.linkd);
-      logfile.print(F("Roll PI, "));
-      logfile.print(param.rollkp);
-      logfile.print(F(", "));
-      logfile.println(param.rollki);
-      logfile.print(F("Feedforward Positions (down/up), "));
-      logfile.print(param.downFeedforward);
-      logfile.print(F(", "));
-      logfile.println(param.upFeedforward);
-      logfile.print(F("Target angles (down/up), "));
-      logfile.print(param.linNoseDownTarget);
-      logfile.print(F(", "));
-      logfile.println(param.linNoseUpTarget);
-      logfile.print(F("Rollover angle, "));
-      logfile.println(param.rollover);
-      logfile.println(F(""));
-      logfile.println(F("Controller Status"));
-      logfile.print(F("Feedforward, "));
-      logfile.println(feedforward);
-      logfile.print(F("Linear PID, "));
-      logfile.println(linPID);
-      logfile.print(F("Linear Fuzzy, "));
-      logfile.println(linFuzzy);
-      logfile.print(F("Circle, "));
-      logfile.println(circle);
-      logfile.print(F("Dubin, "));
-      logfile.println(dubin);
-      logfile.print(F("Turn Feedback, "));
-      logfile.println(turnFeedback);
-      logfile.flush();
-      SDgo = 0;
-      logfile.close();
+//      // OPEN FILE
+//      logfile = SD.open(name_of_file, FILE_WRITE);
+//      logfile.println(F(""));
+//      logfile.println(F(""));
+//      logfile.print(F("Notes,"));
+//      logfile.println(buff);
+//      logfile.println(F(""));
+//      logfile.println(F("Params"));
+//      logfile.print(F("Lin Limits (front/mid/back), "));
+//      logfile.print(param.linFrontLimit);
+//      logfile.print(F(", "));
+//      logfile.print(param.linMid);
+//      logfile.print(F(", "));
+//      logfile.println(param.linBackLimit);
+//      logfile.print(F("Tank Limits (front/middle/back), "));
+//      logfile.print(param.tankFrontLimit);
+//      logfile.print(F(", "));
+//      logfile.print(param.tankMid);
+//      logfile.print(F(", "));
+//      logfile.println(param.tankBackLimit);
+//      logfile.print(F("Glide times (des/rise/neutral/dubin), "));
+//      logfile.print(param.desTime);
+//      logfile.print(F(", "));
+//      logfile.print(param.riseTime);
+//      logfile.print(F(", "));
+//      logfile.print(param.neutralTime);
+//      logfile.print(F(", "));
+//      logfile.println(param.dubinTime);
+//      logfile.print(F("Linear PID, "));
+//      logfile.print(param.linkp);
+//      logfile.print(F(", "));
+//      logfile.print(param.linki);
+//      logfile.print(F(", "));
+//      logfile.println(param.linkd);
+//      logfile.print(F("Roll PI, "));
+//      logfile.print(param.rollkp);
+//      logfile.print(F(", "));
+//      logfile.println(param.rollki);
+//      logfile.print(F("Feedforward Positions (down/up), "));
+//      logfile.print(param.downFeedforward);
+//      logfile.print(F(", "));
+//      logfile.println(param.upFeedforward);
+//      logfile.print(F("Target angles (down/up), "));
+//      logfile.print(param.linNoseDownTarget);
+//      logfile.print(F(", "));
+//      logfile.println(param.linNoseUpTarget);
+//      logfile.print(F("Rollover angle, "));
+//      logfile.println(param.rollover);
+//      logfile.println(F(""));
+//      logfile.println(F("Controller Status"));
+//      logfile.print(F("Feedforward, "));
+//      logfile.println(feedforward);
+//      logfile.print(F("Linear PID, "));
+//      logfile.println(linPID);
+//      logfile.print(F("Linear Fuzzy, "));
+//      logfile.println(linFuzzy);
+//      logfile.print(F("Circle, "));
+//      logfile.println(circle);
+//      logfile.print(F("Dubin, "));
+//      logfile.println(dubin);
+//      logfile.print(F("Turn Feedback, "));
+//      logfile.println(turnFeedback);
+//      logfile.print(F("Feedforward timeout, "));
+//      logfile.println(param.FFtime);
+//      logfile.print(F("Feedforward error bound, "));
+//      logfile.println(param.FFerror);
+//      logfile.flush();
+//      SDgo = 0;
+//      logfile.close();
+      closeFile();
       Serial.println(F("Logging stopped and log file was closed"));
     }
     
@@ -187,7 +203,7 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
     
     else if(strcmp(arg[0], "pressurecal") == 0) {
       // CALIBRATE PRESSURE SENSOR @ 0 DEPTH THIS HAS NOT BEEN VERIFIED!
-      pressure_b = pressure_m * getFiltAnalog(pressureSensorPin);
+      pressure_b = pressure_m * glider.pressure;
     }
     
     else if(strcmp(arg[0], "gimme") == 0) {
@@ -252,12 +268,12 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
       
       else if(strcmp(arg[1], "tank") == 0) {
         Serial.print(F("Tank level: "));
-        Serial.println(getFiltAnalog(tankLevel));
+        Serial.println(glider.tankPos);
       }
       
       else if(strcmp(arg[1], "linear") == 0) {
         Serial.print(F("Linear mass position: "));
-        Serial.println(getFiltAnalog(linPos));
+        Serial.println(glider.linPos);
       }
       
       
@@ -268,9 +284,9 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
       
       else if(strcmp(arg[1], "pressure") == 0) {
         Serial.print(F("Pressure voltage: "));
-        Serial.println(getFiltAnalog(pressureSensorPin));
+        Serial.println(glider.pressure);
         Serial.print(F("Estimated depth (ft): "));
-        Serial.println(pressure_m * (getFiltAnalog(pressureSensorPin) - pressure_b));
+        Serial.println(pressure_m * (glider.pressure - pressure_b));
       }
 
       else {
@@ -321,6 +337,15 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
       else if(strcmp(arg[1], "-destime") == 0) {
         param.desTime = atoi(arg[2]);
         Serial.println(F("Updated Descent Time"));
+      }
+      else if(strcmp(arg[1], "-FFerror") == 0) {
+        param.FFerror = atoi(arg[2]);
+        Serial.println(F("Updated Feedforward Error Bound"));
+      }
+
+      else if(strcmp(arg[1], "-FFtime") == 0) {
+        param.FFtime = atoi(arg[2]);
+        Serial.println(F("Updated Feedforward Timeout"));
       }
       
       else if(strcmp(arg[1], "-neutralTime") == 0) {
@@ -409,6 +434,11 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
         Serial.print(F("Roll Ki updated to: "));
         Serial.println(param.rollki);
       }
+      else if(strcmp(arg[1], "-rollkd") == 0) {
+        param.rollkd = atof(arg[2]);        
+        Serial.print(F("Roll Kd updated to: "));
+        Serial.println(param.rollkd);
+      }
       
       else if(strcmp(arg[1], "-linNoseUpTarget") == 0) {
         param.linNoseUpTarget = atoi(arg[2]);
@@ -435,9 +465,9 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
     
     else if(strcmp(arg[0], "currentpos") == 0) { // Current positions
       Serial.print(F("Linear Mass: "));
-      Serial.println(getFiltAnalog(linPos));
+      Serial.println(glider.linPos);
       Serial.print(F("Water tank: "));
-      Serial.println(getFiltAnalog(tankLevel));
+      Serial.println(glider.tankPos);
     }
     
     else if(strcmp(arg[0], "imucal") == 0) {
@@ -484,6 +514,10 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
       Serial.println(param.neutralTime);
       Serial.print(F("Dubin Time: "));
       Serial.println(param.dubinTime);
+      Serial.print(F("Feedforward timeout: "));
+      Serial.println(param.FFtime);
+      Serial.print(F("Feedforward error bounds: "));
+      Serial.println(param.FFerror);
       
       Serial.println(F("MIDDLE SETTINGS"));
       Serial.print(F("Tank: "));
@@ -560,10 +594,10 @@ void printController(void) {//Print the different controllers statuses
 }
 
 void printHelp(void) {//Print the help menu from FLASH memory
-  for (int i = 0; i < 64; i++)
+  for (int i = 0; i < 67; i++)
   {
     strcpy_P(buffer, (char*)pgm_read_word(&(helpTable[i]))); // Necessary casts and dereferencing, just copy.
     Serial.println(buffer);
-    delay(10);
+    //delay(5);
   }
 }

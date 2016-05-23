@@ -2,7 +2,7 @@ void actuate(int lin, float rot, int tank, int mode) { //lin is either PWM or po
   //Low level motion control, physically actuates things
   
 
-  int currentLinPos = getFiltAnalog(linPos);
+
   
   if (mode == POSITION) {  //Bang Bang Control
     analogWrite(motAPWM, param.linRate);
@@ -16,10 +16,10 @@ void actuate(int lin, float rot, int tank, int mode) { //lin is either PWM or po
       Serial.println(F("Too far backward, going to limit"));
       lin = param.linBackLimit;
     }
-    if(abs(currentLinPos - lin) < 10) {//If we are close turn off
+    if(abs(glider.linPos - lin) < 10) {//If we are close turn off
       digitalWrite(motStdby, LOW);
     } else {
-      if(currentLinPos > lin) {//Set motor direction
+      if(glider.linPos > lin) {//Set motor direction
         digitalWrite(motAConf1, LOW);
         digitalWrite(motAConf2, HIGH);
       } else {
@@ -35,11 +35,11 @@ void actuate(int lin, float rot, int tank, int mode) { //lin is either PWM or po
     lin = constrain(lin,-255,255);//Set it in the PWM output range
     //Pitch Mass Control
 
-    if(lin > 0 && currentLinPos <= param.linFrontLimit){//If it is at a limit and trying to go the wrong way, stop it
+    if(lin > 0 && glider.linPos <= param.linFrontLimit){//If it is at a limit and trying to go the wrong way, stop it
       lin = 0;
     }
 
-    if(lin < 0 && currentLinPos >= param.linBackLimit) {
+    if(lin < 0 && glider.linPos >= param.linBackLimit) {
       lin = 0;
     }
     if(abs(lin) < 10) {//If it is super slow just stop
@@ -61,12 +61,13 @@ void actuate(int lin, float rot, int tank, int mode) { //lin is either PWM or po
   }
 
   //Roll Control
-  float rollOutput = constrain(mapfloat(param.rotMid + rot,-45.0,45.0,rotPWMmin,rotPWMmax),rotPWMmin,rotPWMmax);
+  rotStor = rot;
+  rollOutput = constrain(mapfloat(param.rotMid + rot,-90.0,90.0,rotPWMmin,rotPWMmax),rotPWMmin,rotPWMmax);
 
   rotServo.write(rollOutput);//Roll the servo to 'rot' which is a roll angle +/- 45 from centerline
   
   //Pump Control
-  int currentTankPos = getFiltAnalog(tankLevel);
+  
   if(tank < param.tankBackLimit) {
     Serial.println(F("Too far back, going to limit"));
     tank = param.tankBackLimit;
@@ -76,12 +77,12 @@ void actuate(int lin, float rot, int tank, int mode) { //lin is either PWM or po
     tank = param.tankFrontLimit;
   }
   
-  if(abs(currentTankPos - tank) < 10) {//If it is close turn off the pump
+  if(abs(glider.tankPos - tank) < 10) {//If it is close turn off the pump
     //Serial.println(F("Tank Done"));
     digitalWrite(pumpOn, LOW);
     return;
   }
-  if(currentTankPos > tank) {//Set pump direction
+  if(glider.tankPos > tank) {//Set pump direction
     digitalWrite(pumpDir, HIGH);
   } else {
     digitalWrite(pumpDir, LOW);
