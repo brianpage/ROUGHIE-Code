@@ -1,7 +1,7 @@
 float rotPID(float rot) {//Roll PID controller, needs to be tuned significantly
   float error = -(rot - imu.roll);
   rollI = rollI + error/100.0;
-  rotOutput = param.rollkp*error + param.rollki+rollI + param.rollkd*imu.rollD + rotOutput;
+  rotOutput = param.rollkp*error + param.rollki*rollI + param.rollkd*imu.rollD + rotOutput;
   rotOutput = constrain(rotOutput,-45.0,45.0);
   return rotOutput;  
 }

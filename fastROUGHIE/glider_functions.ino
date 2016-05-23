@@ -74,7 +74,7 @@ void updateIMU(void) {//Update the IMU structure
   imu.roll = temp;
 }
 
-void updateCompass(void) {
+void updateCompass(void) {//Update compass measurements. Works with HMC5883L chip from Sparkfun
   Wire.beginTransmission(address);
   Wire.write(0x03);
   Wire.endTransmission();
@@ -87,9 +87,11 @@ void updateCompass(void) {
     compass.rawY = Wire.read()<<8; //Y msb
     compass.rawY |= Wire.read(); //Y lsb
   }
-  float compX = compass.rawX*cos(imu.pitch)+compass.rawZ*sin(imu.pitch);
-  float compY = compass.rawX*sin(imu.roll)*sin(imu.pitch) + compass.rawY*cos(imu.roll)-compass.rawZ*sin(imu.roll)*cos(imu.pitch);
+  //Perform tilt compensation based on IMU measurements, works reasonably well up to about 45 degrees.
+  float compX = compass.rawX*cos(0.017444*imu.pitch)+compass.rawY*sin(0.017444*imu.roll)*sin(0.017444*imu.pitch)+compass.rawZ*cos(0.017444*imu.roll)*sin(0.017444*imu.pitch);
+  float compY = compass.rawY*cos(0.017444*imu.roll)-compass.rawZ*sin(0.017444*imu.roll);
   
-  compass.heading = 180*atan2(compY,compX)/3.14;
+  compass.heading = 180*atan2(-compY,compX)/3.14;//-4-4/60;//heading adjusted for declination in Houghton
+  Serial.println(compass.heading);
 }
 
