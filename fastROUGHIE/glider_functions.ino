@@ -91,10 +91,18 @@ void updateCompass(void) {//Update compass measurements. Works with HMC5883L chi
   //float compX = compass.rawX*cos(0.017444*imu.pitch)+compass.rawY*sin(0.017444*imu.roll)*sin(0.017444*imu.pitch)+compass.rawZ*cos(0.017444*imu.roll)*sin(0.017444*imu.pitch);
   //float compY = compass.rawY*cos(0.017444*imu.roll)-compass.rawZ*sin(0.017444*imu.roll);
 
-  float compX = compass.rawX*cos(0.01744*imu.pitch)+compass.rawZ*sin(0.01744*imu.pitch);
-  float compY = compass.rawX*sin(0.01744*imu.roll)*sin(0.01744*imu.pitch)+compass.rawY*cos(0.01744*imu.roll)-compass.rawZ*sin(0.01744*imu.roll)*cos(0.01744*imu.pitch);
-  
-  compass.heading = 180*atan2(-compY,compX)/3.14;//-4-4/60;//heading adjusted for declination in Houghton
+  //float compX = compass.rawX*cos(0.01744*imu.pitch)+compass.rawZ*sin(0.01744*imu.pitch);
+  //float compY = compass.rawX*sin(0.01744*imu.roll)*sin(0.01744*imu.pitch)+compass.rawY*cos(0.01744*imu.roll)-compass.rawZ*sin(0.01744*imu.roll)*cos(0.01744*imu.pitch);
+  float cosAngle = cos(imu.roll*0.01744);
+  float sinAngle = sin(imu.roll*0.01744);
+  float Bfy = compass.rawY*cosAngle-compass.rawZ*sinAngle;
+  float Bz = compass.rawY*sinAngle+compass.rawZ*cosAngle;
+  cosAngle = cos(imu.pitch*0.01744);
+  sinAngle = sin(imu.pitch*0.01744);
+  float Bfx = compass.rawX*cosAngle+Bz*sinAngle;
+  float Bfz = -compass.rawX*sinAngle+Bz*cosAngle;
+  compass.heading = 180*atan2(-Bfy,Bfx)/3.14;
+  //compass.heading = 180*atan2(-compY,compX)/3.14;//-4-4/60;//heading adjusted for declination in Houghton
   Serial.println(compass.heading);
 }
 
