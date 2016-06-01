@@ -1,4 +1,5 @@
 void paramInit(void) {//Initiate the param structure to default values;
+  rotStor = 0.0;
   param.linRate = linRate_default;
   param.linFrontLimit = linfrontlimit;
   param.linBackLimit = linbacklimit;

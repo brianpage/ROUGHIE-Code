@@ -62,7 +62,7 @@ void actuate(int lin, float rot, int tank, int mode) { //lin is either PWM or po
 
   //Roll Control
   rotStor = rot;
-  rollOutput = constrain(mapfloat(param.rotMid + rot,-90.0,90.0,rotPWMmin,rotPWMmax),rotPWMmin,rotPWMmax);
+  rollOutput = mapfloat(constrain(param.rotMid + rot,param.rotLowLimit,param.rotHighLimit),-90.0,90.0,rotPWMmin,rotPWMmax);
 
   rotServo.write(rollOutput);//Roll the servo to 'rot' which is a roll angle +/- 45 from centerline
   

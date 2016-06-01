@@ -128,15 +128,15 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
     }
     
     else if(strcmp(arg[0], "turnto") == 0) {
-      Serial.println(F("Moving to desired turn angle..."));
-      param.desiredRotaryPosition = atoi(arg[1]);
-      if (param.desiredRotaryPosition < -44) {
-        param.desiredRotaryPosition = -44;
-      }
-      else if (param.desiredRotaryPosition > 44) {
-        param.desiredRotaryPosition = 44;
-      }
-      rotServo.write( map( param.desiredRotaryPosition, -45, 45, rotPWMmin, rotPWMmax ) );
+      Serial.println(F("turnto command is not functional right now"));
+//      param.desiredRotaryPosition = atoi(arg[1]);
+//      if (param.desiredRotaryPosition < -44) {
+//        param.desiredRotaryPosition = -44;
+//      }
+//      else if (param.desiredRotaryPosition > 44) {
+//        param.desiredRotaryPosition = 44;
+//      }
+//      rotServo.write( map( param.desiredRotaryPosition, -45, 45, rotPWMmin, rotPWMmax ) );
     }
     
     else if(strcmp(arg[0], "servoparameters") == 0) {
@@ -241,6 +241,8 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
           Serial.println(imu.pitch);
           Serial.print(F("Yaw: "));
           Serial.println(imu.yaw);
+          Serial.print(F("Heading: "));
+          Serial.println(compass.heading);
           if(millis()%132<10){
             Serial.println(F("You want attitude?"));
           }
@@ -457,6 +459,7 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
         Serial.print(F("Number of glides updated to: "));
         Serial.println(param.number_of_glides);
       }
+  
       else {
         printHelp();
       }

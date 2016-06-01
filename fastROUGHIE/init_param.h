@@ -1,3 +1,5 @@
+
+
 //Record last bits of glide angles
 float lastUpAngle;
 float lastDownAngle;
@@ -118,7 +120,7 @@ const int pumpDir = 24;     // PUMP DIRECTION PIN
 int tankLevel = A8;         // DRAW WIRE SENSOR FOR BALLAST TANK POSITION FEEDBACK
 int linPos = A9;            // DRAW WIRE SENSOR FOR LINEAR MASS POSITION FEEDBACK
 int pressureSensorPin = A11; // PRESSURE SENSOR FOR DEPTH FEEDBACK
-int rotServo_pin = 7;      // ROTARY SERVO PIN
+int rotServo_pin = 9;      // ROTARY SERVO PIN
 int ecopuck_pin = A15;      // ECOPUCK INPUT
 int Iin_readback = A7;      // Current sensor
 int Vin_readback = A13;     // Battery voltage
@@ -138,8 +140,8 @@ const int tankfrontlimit = 400; // FRONT LIMIT FOR BALLAST TANK
 
 // ROTARY MASS LIMITS
 const int rotmid = 0;                 // MIDDLE POSITION FOR ROTARY MASS
-const int rotlowlimit = rotmid - 44;  // LOW LIMIT FOR ROTARY MASS
-const int rothighlimit = rotmid + 44; // HIGH LIMIT FOR ROTARY MASS
+const int rotlowlimit = rotmid - 70 ; //70// LOW LIMIT FOR ROTARY MASS
+const int rothighlimit = rotmid + 70; // HIGH LIMIT FOR ROTARY MASS
 const float rotPWMmin = 65.0;             // ROTARY LOW PWM LIMIT (FOUND VIA BENCHTEST)
 const float rotPWMmax = 170.0;            // ROTARY HIGH PWM LIMIT (FOUND VIA BENCHTEST)
 

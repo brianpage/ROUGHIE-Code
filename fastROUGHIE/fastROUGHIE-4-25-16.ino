@@ -88,6 +88,7 @@ void loop() {
   if (newCommand != GLIDE) {//GLIDE means no command read, so just continue with old one
     command = newCommand;
   }
+  //Serial.println(glider.linPos);
 
   if (command == START) {//Start a glide cycle with timing based controller
     completedGlides = 0;
