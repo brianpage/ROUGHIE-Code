@@ -132,6 +132,7 @@ void loop() {
     rollI = 0.0;
     rotStor = 0.0;
     rollOutput = 0.0;
+    glider.runTime = 0;
     command = ROLLTEST;
   }
   if (command == ROLLTEST) {

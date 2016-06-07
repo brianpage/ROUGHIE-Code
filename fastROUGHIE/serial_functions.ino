@@ -46,10 +46,14 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
     }
     
     else if(strcmp(arg[0], "sdstart") == 0) {
-      // CREATE FILE ON SD CARD  
-      createSDfile(name_of_file);
-      SDgo = 1;
-      Serial.println(F("SD Start"));
+      // CREATE FILE ON SD CARD 
+      if(!SDgo) { 
+        createSDfile(name_of_file);
+        SDgo = 1;
+        Serial.println(F("SD Start"));
+      } else {
+        Serial.println(F("Can't start a second file until the current one is stopped"));
+      }
     }
     
     else if(strcmp(arg[0], "sdstop") == 0) {
@@ -123,8 +127,14 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
 //      logfile.flush();
 //      SDgo = 0;
 //      logfile.close();
-      closeFile();
-      Serial.println(F("Logging stopped and log file was closed"));
+      if(SDgo){
+        closeFile();
+        Serial.println(F("Logging stopped and log file was closed"));
+        SDgo = 0;
+      } else {
+        Serial.println(F("It wasn't logging anything, why try to stop it?"));
+      }
+      
     }
     
     else if(strcmp(arg[0], "turnto") == 0) {
