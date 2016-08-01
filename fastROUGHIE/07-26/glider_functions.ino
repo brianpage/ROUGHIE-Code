@@ -72,6 +72,8 @@ void updateIMU(void) {//Update the IMU structure
   temp = input.substring(48,56).toFloat() + imu.rollOffset;
   imu.rollD = imu.roll - temp;
   imu.roll = temp;
+  imu.latitude = input.substring(57,69).toFloat();
+  imu.longitude = input.substring(70,83).toFloat();
 }
 
 void updateCompass(void) {//Update compass measurements. Works with HMC5883L chip from Sparkfun

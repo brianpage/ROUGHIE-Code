@@ -88,6 +88,8 @@ struct imu_t {
   float yawD;
   float pitchOffset;
   float rollOffset;
+  float latitude;
+  float longitude;
 }
 imu;
 

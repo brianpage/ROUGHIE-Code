@@ -124,7 +124,7 @@ void createSDfile(char* name_of_file) {//Create the SD file
     stdioFile.clearerr();
     return;
   }
-  stdioFile.println(F("m,pitch,roll,yaw,linPos,tankPos,pressure,compassX,compassY,compassZ,heading,servo"));
+  stdioFile.println(F("m,pitch,roll,yaw,linPos,tankPos,pressure,compassX,compassY,compassZ,heading,servo,latitude,longitude"));
 }
 
 void logData() {
@@ -139,7 +139,9 @@ void logData() {
   stdioFile.printField(compass.rawY,',');
   stdioFile.printField(compass.rawZ,',');
   stdioFile.printField(compass.heading,',');
-  stdioFile.println(rotStor);
+  stdioFile.printField(rotStor,',');
+  stdioFile.printField(imu.latitude,',');
+  stdioFile.println(imu.longitude);
   //stdioFile.fflush();
 }
 

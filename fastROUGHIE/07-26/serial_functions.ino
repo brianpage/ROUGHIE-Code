@@ -305,6 +305,13 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
         Serial.println(pressure_m * (glider.pressure - pressure_b));
       }
 
+      else if(strcmp(arg[1], "gps") == 0) {
+        Serial.print(F("Latitude: "));
+        Serial.println(imu.latitude);
+        Serial.print(F("Longitude: "));
+        Serial.println(imu.longitude);
+      }
+
       else {
         printHelp();
       }
