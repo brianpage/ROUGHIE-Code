@@ -39,6 +39,10 @@ int sawtooth(int &lin,float &rot,int &pump,int &linMode) {
       }
     }
 
+    if(headingControl){
+      rot = headingFeedback(currentState,rotStorage);
+    }
+
     if(millis() - t0 > param.desTime - 1000) {
       downLoops = downLoops + 1;
       lastDownAngle = lastDownAngle + imu.pitch;
@@ -48,7 +52,7 @@ int sawtooth(int &lin,float &rot,int &pump,int &linMode) {
     if(millis() - t0 > param.desTime) {//Once its been gliding for desTime go to the next state
       currentState = NEUTRAL;
       nextState = UPGLIDE;
-      rotStorage = rot;;
+      rotStorage = rot;
       t0 = millis();
       //delay(50);
       Serial.println(F("DOWN GLIDE DONE"));
@@ -134,6 +138,12 @@ int sawtooth(int &lin,float &rot,int &pump,int &linMode) {
         rot = 0.0;
       }
     }
+
+    
+    if(headingControl){
+      rot = headingFeedback(currentState,rotStorage);
+    }
+
     
 
 
@@ -146,7 +156,7 @@ int sawtooth(int &lin,float &rot,int &pump,int &linMode) {
       Serial.println(F("Glide Completed"));
     }
   }
-
+  rotStorage = rot;
   if(linMode == PWM) {//If its PWM mode either do fuzzy or PID
     float error_prev, error_act;
     if(linPID) {
@@ -172,3 +182,22 @@ int sawtooth(int &lin,float &rot,int &pump,int &linMode) {
   return glideCompleted;
   
 }
+
+float headingFeedback(int glideState, float currentRot) {
+  float error = compass.heading - desHeading;
+  float headingKp = param.headingKp;
+  if(glideState == DOWNGLIDE) {
+    headingKp = -param.headingKp;
+  }
+  Serial.print(error);
+  Serial.print("\t");
+  Serial.print(headingKp);
+  Serial.print("\t");
+  float output = constrain(headingKp * error,-2,2);
+  Serial.print(output);
+  output = constrain(output + currentRot,-45,45);
+  Serial.print("\t");
+  Serial.println(output);
+  return output;
+}
+

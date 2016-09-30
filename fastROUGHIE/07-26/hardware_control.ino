@@ -32,6 +32,7 @@ void actuate(int lin, float rot, int tank, int mode) { //lin is either PWM or po
   }
 
   if (mode == PWM) {//PWM mode is used for all controllers except feedforward
+    Serial.println(lin);
     lin = constrain(lin,-255,255);//Set it in the PWM output range
     //Pitch Mass Control
 
@@ -77,16 +78,31 @@ void actuate(int lin, float rot, int tank, int mode) { //lin is either PWM or po
     tank = param.tankFrontLimit;
   }
   
-  if(abs(glider.tankPos - tank) < 10) {//If it is close turn off the pump
-    //Serial.println(F("Tank Done"));
-    digitalWrite(pumpOn, LOW);
-    return;
+  //Serial.println(abs(glider.tankPos - tank));//debugging the weird pump thing
+
+  if(pumpState == HIGH) {
+    if(abs(glider.tankPos - tank) < 5) {//If it is close turn off the pump
+      //Serial.println(F("Tank Done"));
+      digitalWrite(pumpOn, LOW);
+      pumpState = LOW;
+      return;
+    }
+  } else {
+    if(abs(glider.tankPos - tank) < 10) {
+      digitalWrite(pumpOn, LOW);
+      pumpState = LOW;
+      return;
+    }
   }
+
+  
+
   if(glider.tankPos > tank) {//Set pump direction
     digitalWrite(pumpDir, HIGH);
   } else {
     digitalWrite(pumpDir, LOW);
   }
   digitalWrite(pumpOn, HIGH);
+  pumpState = HIGH;
   return;
 }

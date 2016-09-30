@@ -1,3 +1,4 @@
+
 //New ROUGHIE code that should hopefully be easier to work with
 
 //Import libraries, a bunch of them are for fuzzy.
@@ -10,7 +11,7 @@
 #include <FuzzyRuleAntecedent.h>
 #include <FuzzyRuleConsequent.h>
 #include <FuzzySet.h>
-#include <SoftwareSerial.h>
+//#include <SoftwareSerial.h>
 #include <SdFat.h>
 #include <Wire.h>
 #include <SPI.h>
@@ -27,6 +28,7 @@
 #define STOP 3
 #define ROLLTEST 4
 #define ROLLSTART 5
+#define FLOAT 6
 
 
 //Define linear control modes
@@ -54,7 +56,9 @@ void setup() {
   Serial.setTimeout(10);
   Serial.println(F("Version 6.13.16 Switchable turning?"));
   printHelp();
+  Serial.println("printed help");
   paramInit();//Set params to default values
+  Serial.println("set INIT");
   makeFuzzy();//Create fuzzy object
   
   // CENTER THE ROTARY SERVO
@@ -79,6 +83,7 @@ void setup() {
 void loop() {
   updateIMU();
   updateCompass();
+  //Serial.println(compass.heading);
   updateGlider();
   if(SDgo) {//If we are supposed to record, log data
     logData();
@@ -91,18 +96,22 @@ void loop() {
   //Serial.println(glider.linPos);
 
   if (command == START) {//Start a glide cycle with timing based controller
-    completedGlides = 0;
-    t0 = millis();
-    tstart = t0;
-    rollI = 0.0;
-    rotOutput = 0.0;
-    lastUpAngle = 0.0;
-    lastDownAngle = 0.0;
-    downLoops = 0;
-    upLoops = 0;    
-    currentState = DOWNGLIDE;
-    flag = false;
-    command = GLIDE;
+    if(checkPump(param.tankMid) && checkMass(param.linMid)) {    
+      completedGlides = 0;
+      t0 = millis();
+      tstart = t0;
+      rollI = 0.0;
+      rotOutput = 0.0;
+      lastUpAngle = 0.0;
+      lastDownAngle = 0.0;
+      downLoops = 0;
+      upLoops = 0;    
+      currentState = DOWNGLIDE;
+      flag = false;
+      command = GLIDE;
+    } else {
+      actuate(param.linMid,param.rotMid,param.tankMid,POSITION);//reset everything before it starts the glide cycle
+    }
   }
   if (command == STOP) {
     turnOff();
@@ -114,6 +123,17 @@ void loop() {
       Serial.println(F("Glider RESET done!"));
     }
   }
+  if (command == FLOAT) {//Reset to neutrally bouyant, centered CG, zero servo roll
+    actuate(param.linMid,param.rotMid+180,param.tankFrontLimit,POSITION);
+    Serial.print(F("Hope you guys didn't lose me. GPS:\t"));
+    Serial.print(imu.latitude);
+    Serial.print(F("\t"));
+    Serial.println(imu.longitude);
+//    if(checkPump(param.tankFrontLimit) && checkMass(param.linMid)){//If both pump and mass are done, STOP
+//      command = STOP;
+//      Serial.println(F("Glider FLOAT done!"));
+//    }
+  }
   if (command == GLIDE) {//Runs whenever while gliding
     //First do high level control
 //    uint32_t m = millis();  // UPDATE m, THE # OF MILLISECONDS SINCE STARTING
@@ -124,7 +144,7 @@ void loop() {
     actuate(lin,rot,pump,mode);//Low level control of motors and such.
     if(completedGlides >= param.number_of_glides) {//Once it completes its command go to RESET
       Serial.println(F("Done!"));
-      command = RESET;
+      command = FLOAT;
     }
   }
   if (command == ROLLSTART) {
@@ -174,6 +194,5 @@ void loop() {
     actuate(param.linMid,rollAngle,param.tankMid,POSITION);    
 
   }
-  
   //Serial.println(millis()-m);
 }

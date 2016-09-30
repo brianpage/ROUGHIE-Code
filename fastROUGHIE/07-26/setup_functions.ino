@@ -110,7 +110,7 @@ void createSDfile(char* name_of_file) {//Create the SD file
     filename[6] = i/10 + '0';
     filename[7] = i%10 + '0';
     if (!sd.exists(filename)) {
-      Serial.print(F("Logging to: "));
+      Serial.print(F("Logging4 to: "));
       Serial.println(filename);
       strcpy(name_of_file, filename);
       stdioFile.clearerr();
@@ -140,8 +140,10 @@ void logData() {
   stdioFile.printField(compass.rawZ,',');
   stdioFile.printField(compass.heading,',');
   stdioFile.printField(rotStor,',');
-  stdioFile.printField(imu.latitude,',');
-  stdioFile.println(imu.longitude);
+  stdioFile.printField(imu.latitude,',',6);
+  stdioFile.println(imu.longitude,6);
+//  stdioFile.printField(rotStor,',');
+//  stdioFile.println(rotStor);
   //stdioFile.fflush();
 }
 
@@ -208,6 +210,10 @@ void closeFile() {
   stdioFile.println(param.FFtime);
   stdioFile.print(F("Feedforward error bound, "));
   stdioFile.println(param.FFerror);
+  stdioFile.print(F("Heading Control, "));
+  stdioFile.println(headingControl);
+  stdioFile.print(F("Desired Heading, "));
+  stdioFile.println(desHeading);
   stdioFile.fflush();
   stdioFile.fclose();
 }

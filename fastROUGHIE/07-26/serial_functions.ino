@@ -129,7 +129,7 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
 //      logfile.close();
       if(SDgo){
         closeFile();
-        Serial.println(F("Logging stopped and log file was closed"));
+        Serial.println(F("Logging2 stopped and log file was closed"));
         SDgo = 0;
       } else {
         Serial.println(F("It wasn't logging anything, why try to stop it?"));
@@ -161,8 +161,27 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
       else {
         circle = 1;
         dubin = 0;
+        headingControl = 0;
       }
       printController();
+    }
+    
+    else if(strcmp(arg[0], "headingControl") == 0) {
+      if(headingControl) {
+        headingControl = 0;
+      }
+      else {
+        headingControl = 1;
+        dubin = 0;
+        circle = 0;
+      }
+      printController();
+    }
+    
+    else if(strcmp(arg[0], "updateHeading") == 0) {
+      desHeading = compass.heading;
+      Serial.print(F("Desired heading updated to: "));
+      Serial.println(desHeading);
     }
 
     else if(strcmp(arg[0], "feedforward") == 0) {
@@ -176,6 +195,7 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
       else {
         dubin = 1;
         circle = 0;
+        headingControl = 0;
       }
       printController();   
     }
@@ -205,7 +225,10 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
       turnFeedback = !turnFeedback;
       printController();
     }
-    
+    else if(strcmp(arg[0], "float") ==0) {
+      Serial.println(F("Floating!"));
+      command = FLOAT;
+    }
     else if(strcmp(arg[0], "pressurecontrol") == 0) {
       pressureControl = !pressureControl;
       printController();  
@@ -307,9 +330,9 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
 
       else if(strcmp(arg[1], "gps") == 0) {
         Serial.print(F("Latitude: "));
-        Serial.println(imu.latitude);
+        Serial.println(imu.latitude,6);
         Serial.print(F("Longitude: "));
-        Serial.println(imu.longitude);
+        Serial.println(imu.longitude,6);
       }
 
       else {
@@ -461,6 +484,16 @@ int readSerial() {//Reads serial for inputs, needs significant rewrite.
         param.rollkd = atof(arg[2]);        
         Serial.print(F("Roll Kd updated to: "));
         Serial.println(param.rollkd);
+      }
+      else if(strcmp(arg[1], "-headingkp") == 0) {
+        param.headingKp = atof(arg[2]);        
+        Serial.print(F("Heading kp updated to: "));
+        Serial.println(param.headingKp);
+      }
+      else if(strcmp(arg[1], "-desiredHeading") == 0) {
+        desHeading = atof(arg[2]);        
+        Serial.print(F("Desired Heading updated to: "));
+        Serial.println(desHeading);
       }
       
       else if(strcmp(arg[1], "-linNoseUpTarget") == 0) {
@@ -617,10 +650,12 @@ void printController(void) {//Print the different controllers statuses
     Serial.println(turnFeedback);
     Serial.print(F("Delay Roll: "));
     Serial.println(delayRoll);
+    Serial.print(F("Heading Control: "));
+    Serial.println(headingControl);
 }
 
 void printHelp(void) {//Print the help menu from FLASH memory
-  for (int i = 0; i < 69; i++)
+  for (int i = 0; i < 72; i++)
   {
     strcpy_P(buffer, (char*)pgm_read_word(&(helpTable[i]))); // Necessary casts and dereferencing, just copy.
     Serial.println(buffer);

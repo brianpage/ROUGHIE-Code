@@ -13,6 +13,7 @@ void updateGlider() {
   glider.tankPos = getFiltAnalog(tankLevel);
   glider.pressure = getFiltAnalog(pressureSensorPin);
   glider.runTime = millis() - tstart;
+  Serial.println(glider.runTime);
   //Serial.println(glider.runTime);
   
 }
